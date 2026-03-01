@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAX Context — Wizualizator</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<link rel="stylesheet" href="dax-context.css">
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="nav-back">&larr; Menu</a>
+  <h1>DAX <em>Context</em> — Wizualizator</h1>
+  <div class="status-group">
+    <span>Wierszy: <span class="val" id="cntRows">&ndash;</span></span>
+    <span>Modyfikator&#243;w: <span class="val" id="cntMods">&ndash;</span></span>
+    <span>SUM: <span class="val" id="cntSum">&ndash;</span></span>
+  </div>
+</div>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+
+    <div class="sidebar-section">
+      <h3>Dane testowe</h3>
+      <div class="field">
+        <label for="dataPreset">Scenariusz</label>
+        <select id="dataPreset">
+          <option value="basic" selected>Sprzeda&#380; wg produktu i regionu</option>
+          <option value="dates">Sprzeda&#380; wg daty i kategorii</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Jak dzia&#322;a?</h3>
+      <div class="edu-box" id="eduPanel">
+        <h4>Modyfikatory filtru</h4>
+        <p>Kliknij nag&#322;&#243;wek kolumny w <strong>tabeli danych</strong>, aby wybra&#263; modyfikator filtru.</p>
+        <p><strong>REMOVEFILTERS</strong> &mdash; usuwa istniej&#261;ce filtry z kolumny.</p>
+        <p><strong>ALL</strong> &mdash; zwraca wszystkie warto&#347;ci, ignoruj&#261;c filtry.</p>
+        <p><strong>ALLSELECTED</strong> &mdash; respektuje filtry z selektor&#243;w (slicer&#243;w).</p>
+        <p><strong>KEEPFILTERS</strong> &mdash; zachowuje istniej&#261;ce filtry i dodaje nowe (wymaga wyra&#380;enia).</p>
+        <p><strong>R&#243;wnanie</strong> &mdash; dodaje filtr w postaci wyra&#380;enia DAX.</p>
+        <p class="warn">Kliknij ponownie nag&#322;&#243;wek, aby zmieni&#263; lub usun&#261;&#263; modyfikator.</p>
+      </div>
+    </div>
+
+  </aside>
+
+  <div class="main-content">
+
+    <div class="dax-panels">
+
+      <div class="dax-panel">
+        <div class="dax-panel-header ctx-source"><span class="tag">1</span> Tabela danych</div>
+        <div class="dax-panel-subheader">Kliknij nag&#322;&#243;wek kolumny, aby wybra&#263; modyfikator filtru</div>
+        <div class="dax-panel-body" id="panelSource"></div>
+      </div>
+
+      <div class="dax-panel dax-panel-formula">
+        <div class="dax-panel-header ctx-formula"><span class="tag">DAX</span> Metryka</div>
+        <div class="dax-panel-body dax-formula-body" id="panelFormula"></div>
+      </div>
+
+      <div class="dax-panel">
+        <div class="dax-panel-header ctx-result"><span class="tag">2</span> Co widzi metryka</div>
+        <div class="dax-panel-body" id="panelResult"></div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script src="../shared/engine.js"></script>
+<script src="dax-context.js"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power BI — Wizualizator operacji</title>
+<link rel="stylesheet" href="shared/theme.css">
+<style>
+/* ---- Landing page styles ---- */
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--gray-50);
+}
+
+.landing {
+  text-align: center;
+  padding: 60px 24px;
+  max-width: 960px;
+  width: 100%;
+}
+
+.landing h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+}
+.landing h1 span { color: var(--blue); }
+
+.landing .subtitle {
+  font-size: 0.92rem;
+  color: var(--gray-500);
+  margin-bottom: 48px;
+  line-height: 1.5;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 32px 28px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+.card:hover {
+  border-color: var(--gray-400);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
+}
+
+.card .icon {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+.card.merge .icon {
+  background: var(--blue-bg); color: var(--blue);
+}
+.card.append .icon {
+  background: var(--purple-bg); color: var(--purple);
+}
+.card.dax-context .icon {
+  background: #e6fcf5; color: #0c8599;
+}
+
+.card h2 {
+  font-size: 1.05rem; font-weight: 700; color: var(--gray-900);
+  margin-bottom: 6px;
+}
+
+.card p {
+  font-size: 0.82rem; line-height: 1.55; color: var(--gray-600);
+  margin-bottom: 16px; flex: 1;
+}
+
+.card .label {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; display: inline-flex; align-items: center; gap: 4px;
+}
+.card.merge .label { color: var(--blue); }
+.card.append .label { color: var(--purple); }
+.card.dax-context .label { color: #0c8599; }
+
+.footer {
+  margin-top: 48px;
+  font-size: 0.75rem;
+  color: var(--gray-400);
+}
+
+@media (max-width: 900px) {
+  .cards { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .cards { grid-template-columns: 1fr; }
+  .landing { padding: 40px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="landing">
+  <h1>Power BI <span>Wizualizator</span></h1>
+  <p class="subtitle">Interaktywne animacje operacji Power Query i DAX — wybierz narz&#281;dzie poni&#380;ej.</p>
+
+  <div class="cards">
+
+    <a href="merge/index.html" class="card merge">
+      <div class="icon">⟕</div>
+      <h2>Merge (Join)</h2>
+      <p>Wizualizacja łączenia dwóch tabel po kluczu. Inner, Left/Right Outer, Full Outer, Anti, Semi oraz Fuzzy join — krok po kroku z animacją.</p>
+      <span class="label">Otwórz Merge &rarr;</span>
+    </a>
+
+    <a href="append/index.html" class="card append">
+      <div class="icon">⊞</div>
+      <h2>Append (Union)</h2>
+      <p>Wizualizacja pionowego łączenia tabel. Analiza kolumn, uzupełnianie brakujących wartości nullami — UNION ALL animowany wiersz po wierszu.</p>
+      <span class="label">Otwórz Append &rarr;</span>
+    </a>
+
+    <a href="dax-context/index.html" class="card dax-context">
+      <div class="icon">&#119891;x</div>
+      <h2>DAX Context</h2>
+      <p>Wizualizacja kontekstu filtra w DAX. REMOVEFILTERS, REMOVEFILTERS(ALL), ALLSELECTED &mdash; jak metryka widzi dane krok po kroku.</p>
+      <span class="label">Otwórz DAX Context &rarr;</span>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    Power BI Wizualizator &mdash; narz&#281;dzie edukacyjne &bull; Vanilla JS, zero zale&#380;no&#347;ci
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -c:*)",
+      "Bash(node -e \"try { require\\(''fs''\\).readFileSync\\(''B:/Coding/Joins Visualizer/dax-context/dax-context.js'', ''utf8''\\); new Function\\(require\\(''fs''\\).readFileSync\\(''B:/Coding/Joins Visualizer/dax-context/dax-context.js'', ''utf8''\\)\\); console.log\\(''Syntax OK''\\); } catch\\(e\\) { console.error\\(e.message\\); }\")",
+      "Bash(node -e \"try { new Function\\(require\\(''fs''\\).readFileSync\\(''B:/Coding/Joins Visualizer/dax-context/dax-context.js'', ''utf8''\\)\\); console.log\\(''Syntax OK''\\); } catch\\(e\\) { console.error\\(e.message\\); }\")"
+    ]
+  }
+}

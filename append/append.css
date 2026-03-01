@@ -1,0 +1,93 @@
+/* ============================================================
+   APPEND-SPECIFIC STYLES
+   ============================================================ */
+.top-bar h1 em { color: var(--purple); }
+
+/* Override select focus color to purple for append */
+.sidebar select:focus { outline-color: var(--purple); border-color: var(--purple); }
+
+/* Override status badge running color to purple */
+.status-badge.running { background: var(--purple-light); color: var(--purple); }
+
+/* ---- Table count controls ---- */
+.table-count-controls {
+  display: flex; gap: 6px; align-items: center; margin-bottom: 10px;
+}
+.table-count-controls .btn { padding: 4px 10px; font-size: 0.75rem; }
+.table-count-controls .count-label {
+  font-size: 0.82rem; font-weight: 700; color: var(--gray-800); min-width: 16px; text-align: center;
+}
+
+/* ---- Source tables area (horizontal scroll) ---- */
+.sources-area {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0;
+}
+.sources-header {
+  padding: 8px 16px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--gray-500); background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200); flex-shrink: 0;
+}
+.sources-scroll {
+  flex: 1; display: flex; overflow-x: auto; overflow-y: hidden; min-height: 0;
+}
+
+.source-panel {
+  min-width: 280px; flex: 1; display: flex; flex-direction: column;
+  border-right: 1px solid var(--gray-200); overflow: hidden;
+}
+.source-panel:last-child { border-right: none; }
+
+.source-panel-header {
+  padding: 8px 14px; font-size: 0.78rem; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 2px solid var(--gray-200); background: var(--white); flex-shrink: 0;
+}
+.source-panel-header .tag {
+  font-size: 0.6rem; padding: 2px 7px; border-radius: 4px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.source-panel-header .tag-a { background: var(--blue-bg); color: var(--blue); }
+.source-panel-header .tag-b { background: var(--purple-bg); color: var(--purple); }
+.source-panel-header .tag-c { background: var(--orange-bg); color: var(--orange); }
+.source-panel-header .tag-extra { background: var(--gray-100); color: var(--gray-600); }
+
+.source-panel-body { flex: 1; overflow-y: auto; background: var(--white); }
+
+/* ---- Result area ---- */
+.result-area {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0;
+  border-top: 2px solid var(--gray-300);
+}
+.result-header {
+  padding: 8px 16px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--green); background: var(--green-bg);
+  border-bottom: 1px solid var(--gray-200); flex-shrink: 0;
+}
+.result-scroll { flex: 1; overflow-y: auto; background: var(--white); }
+
+/* ---- Append row states ---- */
+.data-table tr.active-row   { background: var(--blue-bg) !important; }
+.data-table tr.active-row-b { background: var(--purple-bg) !important; }
+.data-table tr.active-row-c { background: var(--orange-bg) !important; }
+.data-table tr.copied        { background: var(--green-light) !important; animation: rowFlash 0.5s ease-out; }
+.data-table td.added-col     { background: var(--orange-bg); }
+
+/* ---- Column badge ---- */
+.col-badge {
+  display: inline-block; font-size: 0.6rem; padding: 1px 5px; border-radius: 3px;
+  margin-left: 4px; font-weight: 600; vertical-align: middle;
+}
+.col-badge.new    { background: var(--orange-light); color: var(--orange); }
+.col-badge.shared { background: var(--green-bg); color: var(--green); }
+
+/* ---- Log colors ---- */
+.log-line .copy-action   { color: var(--green); font-weight: 600; }
+.log-line .header-action { color: var(--purple); font-weight: 600; }
+.log-line .null-action   { color: var(--orange); font-weight: 600; }
+.log-line .phase         { color: var(--gray-800); font-weight: 700; }
+.log-line .info          { color: var(--gray-600); }
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .source-panel { min-width: 220px; }
+}

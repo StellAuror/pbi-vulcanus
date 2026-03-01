@@ -1,0 +1,344 @@
+/* ============================================================
+   DAX CONTEXT-SPECIFIC STYLES
+   ============================================================ */
+:root {
+  --teal: #0c8599;
+  --teal-light: #c3fae8;
+  --teal-bg: #e6fcf5;
+
+  /* Modifier type colors */
+  --mod-removefilters: #e8590c;
+  --mod-all: #e03131;
+  --mod-allselected: #7048e8;
+  --mod-keepfilters: #1c7ed6;
+  --mod-equation: #0c8599;
+}
+
+.top-bar h1 em { color: var(--teal); }
+
+/* Override select focus color to teal */
+.sidebar select:focus { outline-color: var(--teal); border-color: var(--teal); }
+
+/* ---- 3-panel layout: Source | Formula | Result ---- */
+.dax-panels {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.dax-panel {
+  display: flex; flex-direction: column;
+  overflow: hidden; border-right: 1px solid var(--gray-200);
+}
+.dax-panel:last-child { border-right: none; }
+
+.dax-panel-header {
+  padding: 10px 16px; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.3px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 2px solid var(--gray-200); background: var(--white);
+}
+.dax-panel-header .tag {
+  font-size: 0.65rem; padding: 2px 7px; border-radius: 4px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.dax-panel-header.ctx-source .tag { background: var(--blue-bg); color: var(--blue); }
+.dax-panel-header.ctx-formula .tag { background: var(--teal-bg); color: var(--teal); }
+.dax-panel-header.ctx-result .tag { background: var(--green-bg); color: var(--green); }
+
+.dax-panel-subheader {
+  padding: 6px 16px; font-size: 0.7rem; color: var(--gray-500);
+  background: var(--gray-50); border-bottom: 1px solid var(--gray-200);
+  flex-shrink: 0;
+}
+
+.dax-panel-body { flex: 1; overflow-y: auto; background: var(--white); }
+
+/* ---- Formula center panel ---- */
+.dax-panel-formula { min-width: 280px; max-width: 360px; }
+
+.dax-formula-body {
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+.formula-block {
+  background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px;
+  padding: 14px 16px; font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.78rem; line-height: 1.7; color: var(--gray-800);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.formula-block.has-rf {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(12, 133, 153, 0.10);
+}
+
+.formula-block .kw { color: var(--blue); font-weight: 700; }
+.formula-block .fn { color: var(--teal); font-weight: 700; }
+.formula-block .col { color: var(--purple); }
+.formula-block .tbl { color: var(--gray-600); }
+.formula-block .removed-arg { color: var(--orange); font-weight: 600; }
+.formula-block .eq-arg { color: var(--mod-equation); font-weight: 600; }
+
+.formula-label {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--gray-500); margin-bottom: 4px;
+}
+
+/* ---- Metric result display ---- */
+.metric-result {
+  background: var(--green-bg); border: 1px solid var(--green-light); border-radius: 8px;
+  padding: 12px 16px; text-align: center;
+}
+.metric-result .metric-label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--gray-500); margin-bottom: 4px;
+}
+.metric-result .metric-value {
+  font-size: 1.5rem; font-weight: 800; color: var(--green);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.15s;
+}
+.metric-result.changed .metric-value {
+  animation: metricPulse 0.4s ease-out;
+}
+@keyframes metricPulse {
+  0%   { transform: scale(1.15); color: var(--teal); }
+  100% { transform: scale(1); color: var(--green); }
+}
+
+/* ---- Clickable column headers in source table ---- */
+.data-table th.col-clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+}
+.data-table th.col-clickable:hover {
+  background: var(--orange-bg) !important;
+  color: var(--orange) !important;
+}
+
+/* Active modifier on source header */
+.data-table th.col-active-mod {
+  background: var(--orange-bg) !important;
+  color: var(--orange) !important;
+  border-bottom: 3px solid var(--orange);
+}
+.data-table th.col-active-mod .rf-icon {
+  opacity: 1;
+}
+
+/* Modifier label tag on source header */
+.col-mod-label {
+  display: inline-block;
+  font-size: 0.55rem;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--orange);
+  color: white;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+/* Small icon indicator next to column name */
+.rf-icon {
+  display: inline-flex; align-items: center; margin-left: 4px;
+  opacity: 0; transition: opacity 0.15s;
+  color: var(--orange);
+}
+.rf-icon svg {
+  width: 13px; height: 13px; fill: none; stroke: currentColor;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ---- Hidden/freed column in RESULT table (REMOVEFILTERS, ALL, ALLSELECTED) ---- */
+.data-table th.col-hidden-rf,
+.data-table td.col-hidden-rf {
+  color: var(--gray-400) !important;
+  font-style: italic;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 4px,
+    rgba(0,0,0,0.018) 4px,
+    rgba(0,0,0,0.018) 8px
+  ) !important;
+  position: relative;
+}
+.data-table th.col-hidden-rf {
+  text-decoration: line-through;
+  text-decoration-color: var(--gray-400);
+}
+
+/* ---- Filtered column in RESULT table (KEEPFILTERS, equation) ---- */
+.data-table th.col-filtered-mod,
+.data-table td.col-filtered-mod {
+  color: var(--mod-keepfilters) !important;
+  background: rgba(28, 126, 214, 0.06) !important;
+  border-left: 3px solid var(--mod-keepfilters);
+  position: relative;
+}
+.data-table th.col-filtered-mod {
+  font-weight: 700;
+}
+
+/* Eye-slash / filter icons in result headers */
+.col-hidden-icon {
+  display: inline-flex; align-items: center; gap: 3px;
+  color: var(--gray-400);
+}
+.col-hidden-icon svg {
+  width: 14px; height: 14px; vertical-align: middle;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.col-filtered-mod .col-hidden-icon {
+  color: var(--mod-keepfilters);
+}
+.col-filtered-mod .col-hidden-icon svg {
+  fill: none;
+}
+
+/* ---- The measure column stays normal in result ---- */
+.data-table th.col-measure,
+.data-table td.col-measure {
+  font-weight: 700;
+  color: var(--green) !important;
+}
+.data-table th.col-measure {
+  border-bottom: 3px solid var(--green);
+}
+/* Measure value changed from original */
+.data-table td.col-measure-changed {
+  background: var(--green-bg) !important;
+  font-weight: 800;
+}
+
+/* ---- Row count badge ---- */
+.row-count-badge {
+  display: inline-block; font-size: 0.68rem; padding: 2px 6px; border-radius: 4px;
+  font-weight: 700; margin-left: auto;
+}
+.row-count-badge.all { background: var(--green-bg); color: var(--green); }
+.row-count-badge.partial { background: var(--blue-bg); color: var(--blue); }
+
+/* ============================================================
+   MODIFIER MENU (floating dropdown)
+   ============================================================ */
+.modifier-menu {
+  position: fixed;
+  z-index: 1000;
+  display: none;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+  min-width: 210px;
+  overflow: hidden;
+  font-size: 0.8rem;
+}
+
+.mod-menu-title {
+  padding: 10px 14px 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gray-400);
+}
+
+.mod-menu-opt {
+  padding: 8px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.1s;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+.mod-menu-opt:hover {
+  background: var(--gray-50);
+}
+.mod-menu-opt.selected {
+  background: var(--blue-bg);
+  color: var(--blue);
+  font-weight: 700;
+}
+
+/* "None" option */
+.mod-menu-none {
+  color: var(--gray-500);
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 0.75rem;
+}
+.mod-menu-none:hover {
+  background: #fff5f5;
+  color: var(--red);
+}
+.mod-menu-x {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* Color dot */
+.mod-menu-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Arrow indicator on sub-level options */
+.mod-menu-arrow {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--gray-400);
+}
+
+/* Value picker area */
+.mod-menu-values {
+  border-top: 1px solid var(--gray-100);
+  background: var(--gray-50);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.mod-menu-values-label {
+  padding: 8px 14px 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-400);
+}
+.mod-menu-value {
+  padding: 6px 14px 6px 22px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--gray-700);
+  transition: background 0.1s;
+}
+.mod-menu-value:hover {
+  background: var(--blue-bg);
+  color: var(--blue);
+}
+.mod-menu-value.active {
+  background: var(--blue-bg);
+  color: var(--blue);
+  font-weight: 700;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1000px) {
+  .dax-panels { grid-template-columns: 1fr; }
+  .dax-panel-formula { max-width: none; min-width: auto; }
+  .dax-panel { max-height: 300px; }
+}
+@media (max-width: 700px) {
+  .dax-panel { max-height: 240px; }
+}

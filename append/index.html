@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Append — Power Query Wizualizator</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<link rel="stylesheet" href="append.css">
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="nav-back">&larr; Menu</a>
+  <h1>Power Query <em>Append</em> — Wizualizator</h1>
+  <div class="status-group">
+    <span>Tabela: <span class="val" id="cntTable">–</span></span>
+    <span>Wiersz: <span class="val" id="cntRow">–</span></span>
+    <span>Wynik: <span class="val" id="cntResult">0</span></span>
+    <span class="status-badge" id="statusBadge"><span class="dot"></span> <span id="statusText">Gotowy</span></span>
+  </div>
+</div>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+
+    <div class="sidebar-section">
+      <h3>Typ operacji Append</h3>
+      <div class="field">
+        <label for="appendMode">Tryb</label>
+        <select id="appendMode">
+          <option value="two" selected>Dwie tabele</option>
+          <option value="three">Trzy lub więcej tabel</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Dane testowe</h3>
+      <div class="field">
+        <label for="dataPreset">Scenariusz</label>
+        <select id="dataPreset">
+          <option value="same">Identyczne kolumny</option>
+          <option value="partial">Częściowo różne kolumny</option>
+          <option value="different">Zupełnie różne kolumny</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section" id="tableCountSection" style="display:none;">
+      <h3>Liczba tabel</h3>
+      <div class="table-count-controls">
+        <button class="btn" id="btnRemoveTable">−</button>
+        <span class="count-label" id="tableCountLabel">3</span>
+        <button class="btn" id="btnAddTable">+</button>
+        <span style="font-size:0.75rem;color:var(--gray-500);margin-left:6px;">tabel(e)</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Sterowanie</h3>
+      <div class="btn-group" style="margin-bottom:12px;">
+        <button class="btn primary" id="btnStart">&#9654; Start</button>
+        <button class="btn" id="btnPause" disabled>&#10074;&#10074; Pauza</button>
+        <button class="btn" id="btnStep" disabled>&#9654;| Krok</button>
+        <button class="btn" id="btnReset">&#8634; Reset</button>
+      </div>
+      <div class="field">
+        <label>Prędkość animacji</label>
+        <input type="range" id="speedSlider" min="100" max="2000" value="500" step="50">
+        <div class="range-label"><span>szybko</span><span class="val" id="speedVal">500 ms</span><span>wolno</span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="flex:1;">
+      <h3>Jak działa Append?</h3>
+      <div class="edu-box" id="eduPanel"></div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+
+    <div class="sources-area">
+      <div class="sources-header">Tabele źródłowe</div>
+      <div class="sources-scroll" id="sourcesScroll"></div>
+    </div>
+
+    <div class="result-area">
+      <div class="result-header">&#9660; Wynik Append</div>
+      <div class="result-scroll" id="resultScroll"></div>
+    </div>
+
+    <div class="log-area" id="logPanel"></div>
+  </div>
+</div>
+
+<script src="../shared/engine.js"></script>
+<script src="append.js"></script>
+</body>
+</html>
