@@ -330,20 +330,42 @@ var RC_FUNCTIONS = {
   },
 
   PARALLELPERIOD: {
-    name: "PARALLELPERIOD \u2014 Ca\u0142y poprzedni rok",
-    measureName: "Sprzeda\u017c poprz. rok",
-    desc: "<strong>PARALLELPERIOD</strong> z interwa\u0142em YEAR zwraca <em>ca\u0142y</em> " +
-          "poprzedni rok (wszystkie 12 miesi\u0119cy). CALCULATE sumuje sprzeda\u017c " +
-          "z tego pe\u0142nego okresu \u2014 to kluczowa r\u00f3\u017cnica vs DATEADD, kt\u00f3ry przesuwa tylko bie\u017c\u0105cy punkt.",
+    name: "PARALLELPERIOD \u2014 Pe\u0142ny okres",
+    measureName: "Okres r\u00f3wnoleg\u0142y",
+    desc: "<strong>PARALLELPERIOD</strong> najpierw <em>rozszerza</em> kontekst do pe\u0142nego " +
+          "interwa\u0142u (MONTH/QUARTER/YEAR), a nast\u0119pnie przesuwa go. " +
+          "Np.\u00a0kontekst = Mar\u00a02024, -1\u00a0YEAR \u2192 ca\u0142y rok 2023 (12\u00a0wierszy).",
     hasWindow: false,
+    hasNumberInterval: true,
     compute: function (idx) {
       var row = SALES[idx];
-      var prevYear = row.rok - 1;
+      var num = state.paramNumber;
+      var interval = state.paramInterval;
       var sum = 0; var inputs = [];
-      for (var i = 0; i < SALES.length; i++) {
-        if (SALES[i].rok === prevYear) {
-          sum += SALES[i].val;
-          inputs.push(i);
+      if (interval === "MONTH") {
+        var shifted = idx + num;
+        if (shifted >= 0 && shifted < SALES.length) {
+          inputs.push(shifted);
+          sum = SALES[shifted].val;
+        }
+      } else if (interval === "QUARTER") {
+        var qStartM = (row.q - 1) * 3 + 1;
+        for (var off = 0; off < 3; off++) {
+          var totalM = (row.rok - 1) * 12 + (qStartM + off - 1) + num * 3;
+          var tY = Math.floor(totalM / 12) + 1;
+          var tM = (totalM % 12) + 1;
+          for (var j = 0; j < SALES.length; j++) {
+            if (SALES[j].rok === tY && SALES[j].m === tM) {
+              inputs.push(j); sum += SALES[j].val; break;
+            }
+          }
+        }
+      } else {
+        var targetYear = row.rok + num;
+        for (var k = 0; k < SALES.length; k++) {
+          if (SALES[k].rok === targetYear) {
+            inputs.push(k); sum += SALES[k].val;
+          }
         }
       }
       if (inputs.length === 0) return { value: null, inputs: [], op: "SUM", isPercent: false };
@@ -354,8 +376,8 @@ var RC_FUNCTIONS = {
              '&nbsp;&nbsp;<span class="fn">SUM</span> ( <span class="col">Dane[Sprzeda\u017c]</span> ),<br>' +
              '&nbsp;&nbsp;<span class="fn">PARALLELPERIOD</span> (<br>' +
              '&nbsp;&nbsp;&nbsp;&nbsp;<span class="col">Kalendarz[Data]</span>,<br>' +
-             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">-1</span>,<br>' +
-             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">YEAR</span><br>' +
+             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">' + state.paramNumber + '</span>,<br>' +
+             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">' + state.paramInterval + '</span><br>' +
              '&nbsp;&nbsp;)<br>' +
              ')';
     },
@@ -364,21 +386,26 @@ var RC_FUNCTIONS = {
   DATEADD_SHIFT: {
     name: "DATEADD \u2014 Przesuni\u0119ty okres",
     measureName: "Sprzeda\u017c Shifted",
-    desc: "<strong>DATEADD</strong> przesuwa daty w kontek\u015bcie o podan\u0105 liczb\u0119 " +
-          "miesi\u0119cy. Zwraca warto\u015b\u0107 sprzeda\u017cy z przesuni\u0119tego okresu.",
-    hasWindow: true,
-    compute: function (idx, windowSize) {
-      var shifted = idx - windowSize;
+    desc: "<strong>DATEADD</strong> przesuwa ka\u017cd\u0105 dat\u0119 w kontek\u015bcie o podan\u0105 " +
+          "liczb\u0119 interwa\u0142\u00f3w (MONTH / QUARTER / YEAR). Zwraca warto\u015b\u0107 " +
+          "sprzeda\u017cy z przesuni\u0119tego okresu.",
+    hasWindow: false,
+    hasNumberInterval: true,
+    compute: function (idx) {
+      var months = state.paramNumber;
+      if (state.paramInterval === "QUARTER") months = state.paramNumber * 3;
+      else if (state.paramInterval === "YEAR") months = state.paramNumber * 12;
+      var shifted = idx + months;
       if (shifted < 0 || shifted >= SALES.length) return { value: null, inputs: [], op: "SUM", isPercent: false };
       return { value: SALES[shifted].val, inputs: [shifted], op: "SUM", isPercent: false };
     },
-    formula: function (win) {
+    formula: function () {
       return '<span class="fn">CALCULATE</span> (<br>' +
              '&nbsp;&nbsp;<span class="fn">SUM</span> ( <span class="col">Dane[Sprzeda\u017c]</span> ),<br>' +
              '&nbsp;&nbsp;<span class="fn">DATEADD</span> (<br>' +
              '&nbsp;&nbsp;&nbsp;&nbsp;<span class="col">Kalendarz[Data]</span>,<br>' +
-             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">-' + win + '</span>,<br>' +
-             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">MONTH</span><br>' +
+             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">' + state.paramNumber + '</span>,<br>' +
+             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">' + state.paramInterval + '</span><br>' +
              '&nbsp;&nbsp;)<br>' +
              ')';
     },
@@ -414,10 +441,13 @@ var RC_FUNCTIONS = {
    3. DOM REFERENCES
    =========================================================== */
 var $ = function (s) { return document.querySelector(s); };
-var rcFunctionEl  = $("#rcFunction");
-var windowSection = $("#windowSection");
-var windowSizeEl  = $("#windowSize");
-var panelSource   = $("#panelSource");
+var rcFunctionEl    = $("#rcFunction");
+var windowSection   = $("#windowSection");
+var windowSizeEl    = $("#windowSize");
+var paramNISection  = $("#paramNISection");
+var paramNumberEl   = $("#paramNumber");
+var paramIntervalEl = $("#paramInterval");
+var panelSource     = $("#panelSource");
 var panelFormula  = $("#panelFormula");
 var panelResult   = $("#panelResult");
 var ctxLabelEl    = $("#ctxLabel");
@@ -430,6 +460,8 @@ var state = {
   selectedRow: 14,       // Mar 2024
   funcName: "DATEADD_SHIFT",
   windowSize: 3,
+  paramNumber: -1,
+  paramInterval: "MONTH",
 };
 
 /* ===========================================================
@@ -617,12 +649,17 @@ function renderAll() {
   ctxLabelEl.textContent = row.label;
   rcResultEl.textContent = formatResult(result);
 
-  /* Show/hide window section */
+  /* Show/hide param sections */
   var fn = RC_FUNCTIONS[state.funcName];
   if (fn.hasWindow) {
     windowSection.classList.remove("hidden");
   } else {
     windowSection.classList.add("hidden");
+  }
+  if (fn.hasNumberInterval) {
+    paramNISection.classList.remove("hidden");
+  } else {
+    paramNISection.classList.add("hidden");
   }
 }
 
@@ -636,6 +673,16 @@ rcFunctionEl.addEventListener("change", function () {
 
 windowSizeEl.addEventListener("change", function () {
   state.windowSize = parseInt(this.value, 10);
+  renderAll();
+});
+
+paramNumberEl.addEventListener("change", function () {
+  state.paramNumber = parseInt(this.value, 10);
+  renderAll();
+});
+
+paramIntervalEl.addEventListener("change", function () {
+  state.paramInterval = this.value;
   renderAll();
 });
 

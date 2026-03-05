@@ -29,7 +29,7 @@
             <option value="SPLY_VAL">SAMEPERIODLASTYEAR &#8212; Warto&#347;&#263; rok temu</option>
             <option value="PREVIOUSMONTH">PREVIOUSMONTH &#8212; Poprz. miesi&#261;c</option>
             <option value="PREVIOUSQUARTER">PREVIOUSQUARTER &#8212; Poprz. kwarta&#322;</option>
-            <option value="PARALLELPERIOD">PARALLELPERIOD &#8212; Ca&#322;y poprz. rok</option>
+            <option value="PARALLELPERIOD">PARALLELPERIOD &#8212; Pe&#322;ny okres</option>
           </optgroup>
           <optgroup label="Sumy narastaj&#261;ce">
             <option value="RUNNING_TOTAL">DATESYTD &#8212; Suma YTD</option>
@@ -60,6 +60,27 @@
           <option value="3" selected>3 miesi&#261;ce</option>
           <option value="4">4 miesi&#261;ce</option>
           <option value="6">6 miesi&#281;cy</option>
+        </select>
+      </div>
+      <div class="ribbon-section-label">Parametr</div>
+    </div>
+
+    <div class="ribbon-divider"></div>
+
+    <div class="ribbon-section hidden" id="paramNISection">
+      <div class="ribbon-group">
+        <label class="ribbon-label" for="paramNumber">Liczba:</label>
+        <select id="paramNumber">
+          <option value="-1" selected>-1</option>
+          <option value="-2">-2</option>
+          <option value="-3">-3</option>
+          <option value="-6">-6</option>
+        </select>
+        <label class="ribbon-label" for="paramInterval" style="margin-left:8px">Interwa&#322;:</label>
+        <select id="paramInterval">
+          <option value="MONTH" selected>MONTH</option>
+          <option value="QUARTER">QUARTER</option>
+          <option value="YEAR">YEAR</option>
         </select>
       </div>
       <div class="ribbon-section-label">Parametr</div>
