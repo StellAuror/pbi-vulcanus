@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Power BI — Wizualizator operacji</title>
+<title>pbi-vulcanus — interaktywna nauka Power BI</title>
 <link rel="stylesheet" href="shared/theme.css">
 <style>
 /* ---- Landing page styles ---- */
@@ -39,7 +39,7 @@ body {
 
 .cards {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
@@ -79,6 +79,12 @@ body {
 .card.dax-context .icon {
   background: #e6fcf5; color: #0c8599;
 }
+.card.time-intelligence .icon {
+  background: #edf2ff; color: #5c7cfa;
+}
+.card.running-calc .icon {
+  background: #fff3e0; color: #e8590c;
+}
 
 .card h2 {
   font-size: 1.05rem; font-weight: 700; color: var(--gray-900);
@@ -97,6 +103,8 @@ body {
 .card.merge .label { color: var(--blue); }
 .card.append .label { color: var(--purple); }
 .card.dax-context .label { color: #0c8599; }
+.card.time-intelligence .label { color: #5c7cfa; }
+.card.running-calc .label { color: #e8590c; }
 
 .footer {
   margin-top: 48px;
@@ -105,7 +113,7 @@ body {
 }
 
 @media (max-width: 900px) {
-  .cards { grid-template-columns: 1fr 1fr; }
+  .cards { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .cards { grid-template-columns: 1fr; }
@@ -116,8 +124,8 @@ body {
 <body>
 
 <div class="landing">
-  <h1>Power BI <span>Wizualizator</span></h1>
-  <p class="subtitle">Interaktywne animacje operacji Power Query i DAX — wybierz narz&#281;dzie poni&#380;ej.</p>
+  <h1><span>pbi-vulcanus</span></h1>
+  <p class="subtitle">Zrozum Power Query i DAX przez wizualizacj&#281;. Kliknij, obserwuj, naucz si&#281;.</p>
 
   <div class="cards">
 
@@ -142,10 +150,24 @@ body {
       <span class="label">Otwórz DAX Context &rarr;</span>
     </a>
 
+    <a href="time-intelligence/index.html" class="card time-intelligence">
+      <div class="icon">△T</div>
+      <h2>Time Intelligence</h2>
+      <p>Wizualizacja funkcji Time Intelligence w DAX. DATEADD, SAMEPERIODLASTYEAR, DATESYTD, PREVIOUSQUARTER &mdash; jak działają przesunięcia czasowe.</p>
+      <span class="label">Otwórz Time Intelligence &rarr;</span>
+    </a>
+
+    <a href="running-calc/index.html" class="card running-calc">
+      <div class="icon">∑</div>
+      <h2>Running Calculations</h2>
+      <p>Zaawansowane obliczenia DAX: Running Total, średnia krocząca, zmiana MoM/YoY %, DATESINPERIOD &mdash; wizualizacja okien czasowych.</p>
+      <span class="label">Otwórz Running Calc &rarr;</span>
+    </a>
+
   </div>
 
   <div class="footer">
-    Power BI Wizualizator &mdash; narz&#281;dzie edukacyjne &bull; Vanilla JS, zero zale&#380;no&#347;ci
+    pbi-vulcanus &mdash; Micha&#322; Krawczuk &times; Claude Code
   </div>
 </div>
 

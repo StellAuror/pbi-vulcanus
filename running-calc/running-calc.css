@@ -1,0 +1,160 @@
+/* ============================================================
+   RUNNING CALCULATIONS — SPECIFIC STYLES
+   Same pattern as DAX Context: two standard tables + formula.
+   ============================================================ */
+:root {
+  --rc: #5c7cfa;
+  --rc-light: #dbe4ff;
+  --rc-bg: #edf2ff;
+}
+
+.top-bar h1 em { color: var(--rc); font-weight: 800; }
+
+select:focus { outline-color: var(--rc); border-color: var(--rc); }
+
+/* ---- 3-panel layout: Source | Formula | Result ---- */
+.rc-panels {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.rc-panel {
+  display: flex; flex-direction: column;
+  overflow: hidden; border-right: 1px solid var(--gray-200);
+}
+.rc-panel:last-child { border-right: none; }
+
+.rc-panel-header {
+  padding: 10px 16px; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.3px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 2px solid var(--gray-200); background: var(--white);
+}
+.rc-panel-header .tag {
+  font-size: 0.65rem; padding: 2px 7px; border-radius: 4px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.rc-panel-header.ctx-source .tag { background: var(--gray-100); color: var(--gray-600); }
+.rc-panel-header.ctx-formula .tag { background: var(--rc-bg); color: var(--rc); }
+.rc-panel-header.ctx-result .tag { background: var(--green-bg); color: var(--green); }
+
+.rc-panel-body { flex: 1; overflow-y: auto; background: var(--white); }
+
+/* ---- Formula center panel ---- */
+.rc-panel-formula { min-width: 280px; max-width: 360px; }
+
+.rc-formula-body {
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+  overflow-y: auto;
+}
+
+/* ---- Formula block ---- */
+.formula-block {
+  background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px;
+  padding: 14px 16px; font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.76rem; line-height: 1.7; color: var(--gray-800);
+}
+.formula-block .kw { color: var(--gray-600); font-weight: 700; }
+.formula-block .fn { color: var(--rc); font-weight: 700; }
+.formula-block .col { color: var(--gray-700); }
+.formula-block .param { color: var(--rc); font-weight: 600; }
+
+.formula-label {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--gray-500); margin-bottom: 4px;
+}
+
+/* ---- Metric result display ---- */
+.metric-result {
+  background: var(--green-bg); border: 1px solid var(--green-light); border-radius: 8px;
+  padding: 12px 16px; text-align: center;
+}
+.metric-result .metric-label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--gray-500); margin-bottom: 4px;
+}
+.metric-result .metric-value {
+  font-size: 1.5rem; font-weight: 800; color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Explanation text ---- */
+.rc-desc {
+  font-size: 0.75rem; color: var(--gray-600); line-height: 1.55;
+}
+.rc-desc strong { color: var(--gray-800); }
+
+/* ---- Source table (clickable rows) ---- */
+.data-table tbody tr.row-clickable { cursor: pointer; }
+.data-table tbody tr.row-clickable:hover td { background: var(--gray-50); }
+
+/* Selected context row in source */
+.data-table tbody tr.row-ctx td {
+  background: var(--gray-100);
+}
+.data-table tbody tr.row-ctx td:first-child {
+  box-shadow: inset 3px 0 0 var(--gray-800);
+}
+
+/* Quarter separator */
+.data-table tr.q-sep td { border-bottom: 2px solid var(--gray-200); }
+
+/* ---- Result table: included rows ---- */
+.data-table tbody tr.row-included td {
+  background: var(--rc-bg);
+}
+.data-table tbody tr.row-included td.col-val {
+  color: var(--rc); font-weight: 700;
+}
+
+/* Rows NOT included in result: dimmed */
+.data-table tbody tr.row-excluded td {
+  color: var(--gray-300);
+}
+
+/* Measure column in result table */
+.data-table th.col-measure {
+  color: var(--green); border-bottom: 3px solid var(--green);
+}
+.data-table td.col-measure {
+  font-weight: 700; color: var(--green);
+}
+
+/* Result aggregation footer row */
+.data-table tfoot td {
+  padding: 10px 12px; font-weight: 800; font-size: 0.82rem;
+  border-top: 2px solid var(--gray-300); background: var(--gray-50);
+  font-variant-numeric: tabular-nums;
+}
+.data-table tfoot td.col-measure {
+  color: var(--green); font-size: 0.95rem;
+}
+
+/* Row count badge (reused from DAX Context) */
+.row-count-badge {
+  display: inline-block; font-size: 0.68rem; padding: 2px 6px; border-radius: 4px;
+  font-weight: 700; margin-left: auto;
+}
+.row-count-badge.partial { background: var(--rc-bg); color: var(--rc); }
+
+/* ---- Window section visibility ---- */
+#windowSection.hidden { display: none; }
+
+.ribbon-label {
+  font-size: 0.76rem; color: var(--gray-600); font-weight: 600; white-space: nowrap;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1100px) {
+  .rc-panels { grid-template-columns: 1fr; }
+  .rc-panel-formula { max-width: none; min-width: auto; }
+  .rc-panel { max-height: 350px; }
+}
+@media (max-width: 700px) {
+  .rc-panel { max-height: 280px; }
+}

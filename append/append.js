@@ -1,6 +1,6 @@
 /* ============================================================
    APPEND VISUALIZER — App logic
-   Depends on: PQEngine (shared/engine.js)
+   Depends on: PQEngine (shared/engine.js), DATASETS (shared/datasets.js)
    ============================================================ */
 (function () {
 "use strict";
@@ -8,7 +8,7 @@
 const E = PQEngine;
 
 /* ===========================================================
-   1. DATA PRESETS
+   1. CONSTANTS
    =========================================================== */
 const TAGS = ["a", "b", "c", "d", "e", "f"];
 const TAG_CLASSES = { a: "tag-a", b: "tag-b", c: "tag-c" };
@@ -16,101 +16,30 @@ function tagClass(t) { return TAG_CLASSES[t] || "tag-extra"; }
 const ROW_CLASSES = { a: "active-row", b: "active-row-b", c: "active-row-c" };
 function rowActiveClass(t) { return ROW_CLASSES[t] || "active-row"; }
 
-function makePresets(mode) {
-  const base = {
-    same: {
-      name: "Identyczne kolumny",
-      tables: [
-        { label: "Stycze\u0144", tag: "a", data: [
-          { Produkt: "Chleb",  Ilo\u015b\u0107: 30, Kwota: 135.00 },
-          { Produkt: "Mas\u0142o",  Ilo\u015b\u0107: 20, Kwota: 159.80 },
-          { Produkt: "Mleko",  Ilo\u015b\u0107: 45, Kwota: 157.05 },
-        ]},
-        { label: "Luty", tag: "b", data: [
-          { Produkt: "Chleb",  Ilo\u015b\u0107: 28, Kwota: 126.00 },
-          { Produkt: "Ser",    Ilo\u015b\u0107: 15, Kwota: 112.35 },
-          { Produkt: "Jab\u0142ka", Ilo\u015b\u0107: 40, Kwota: 119.60 },
-        ]},
-        { label: "Marzec", tag: "c", data: [
-          { Produkt: "Mas\u0142o",  Ilo\u015b\u0107: 22, Kwota: 175.78 },
-          { Produkt: "Mleko",  Ilo\u015b\u0107: 50, Kwota: 174.50 },
-          { Produkt: "Banany", Ilo\u015b\u0107: 35, Kwota: 209.65 },
-        ]},
-      ],
-    },
-    partial: {
-      name: "Cz\u0119\u015bciowo r\u00f3\u017cne kolumny",
-      tables: [
-        { label: "Sklep A", tag: "a", data: [
-          { Produkt: "Chleb",  Ilo\u015b\u0107: 30, Cena: 4.50 },
-          { Produkt: "Mas\u0142o",  Ilo\u015b\u0107: 20, Cena: 7.99 },
-          { Produkt: "Mleko",  Ilo\u015b\u0107: 45, Cena: 3.49 },
-        ]},
-        { label: "Sklep B", tag: "b", data: [
-          { Produkt: "Chleb",  Ilo\u015b\u0107: 25, Rabat: "10%" },
-          { Produkt: "Ser",    Ilo\u015b\u0107: 15, Rabat: "5%" },
-          { Produkt: "Jab\u0142ka", Ilo\u015b\u0107: 40, Rabat: "0%" },
-        ]},
-        { label: "Sklep C", tag: "c", data: [
-          { Produkt: "Banany", Dostawca: "FreshCo", Cena: 5.99 },
-          { Produkt: "Ry\u017c",    Dostawca: "GrainPL", Cena: 6.29 },
-        ]},
-      ],
-    },
-    different: {
-      name: "Zupe\u0142nie r\u00f3\u017cne kolumny",
-      tables: [
-        { label: "Sprzeda\u017c", tag: "a", data: [
-          { Produkt: "Chleb",  Kwota: 135.00, Region: "P\u00f3\u0142noc" },
-          { Produkt: "Mas\u0142o",  Kwota: 159.80, Region: "Po\u0142udnie" },
-        ]},
-        { label: "Reklamacje", tag: "b", data: [
-          { Klient: "Kowalski", Problem: "Uszkodzenie",  Data: "2024-03-01" },
-          { Klient: "Nowak",    Problem: "Brak produktu", Data: "2024-03-05" },
-        ]},
-        { label: "Magazyn", tag: "c", data: [
-          { SKU: "BRD-001", Stan: 150, Lokalizacja: "Hala A" },
-          { SKU: "BTR-002", Stan: 80,  Lokalizacja: "Hala B" },
-        ]},
-      ],
-    },
-  };
-
-  if (mode === "two") {
-    const out = {};
-    for (const k in base) {
-      out[k] = { name: base[k].name, tables: base[k].tables.slice(0, 2) };
-    }
-    return out;
-  }
-  return base;
-}
-
 /* ===========================================================
    2. DOM
    =========================================================== */
 const $ = s => document.querySelector(s);
-const appendModeEl   = $("#appendMode");
-const dataPresetEl   = $("#dataPreset");
-const tableCountSec  = $("#tableCountSection");
-const tableCountLabel= $("#tableCountLabel");
-const btnAddTable    = $("#btnAddTable");
-const btnRemoveTable = $("#btnRemoveTable");
-const speedSlider    = $("#speedSlider");
-const speedVal       = $("#speedVal");
-const btnStart       = $("#btnStart");
-const btnPause       = $("#btnPause");
-const btnStep        = $("#btnStep");
-const btnReset       = $("#btnReset");
-const cntTable       = $("#cntTable");
-const cntRow         = $("#cntRow");
-const cntResult      = $("#cntResult");
-const statusText     = $("#statusText");
-const statusBadge    = $("#statusBadge");
-const sourcesScroll  = $("#sourcesScroll");
-const resultScroll   = $("#resultScroll");
-const logPanel       = $("#logPanel");
-const eduPanel       = $("#eduPanel");
+const appendModeEl    = $("#appendMode");
+const dataPresetEl    = $("#dataPreset");
+const tableCountCtrl  = $("#tableCountControls");
+const tableCountLabel = $("#tableCountLabel");
+const btnAddTable     = $("#btnAddTable");
+const btnRemoveTable  = $("#btnRemoveTable");
+const speedSlider     = $("#speedSlider");
+const speedVal        = $("#speedVal");
+const btnStart        = $("#btnStart");
+const btnPause        = $("#btnPause");
+const btnStep         = $("#btnStep");
+const btnReset        = $("#btnReset");
+const cntTable        = $("#cntTable");
+const cntRow          = $("#cntRow");
+const cntResult       = $("#cntResult");
+const statusText      = $("#statusText");
+const statusBadge     = $("#statusBadge");
+const sourcesScroll   = $("#sourcesScroll");
+const resultScroll    = $("#resultScroll");
+const logPanel        = $("#logPanel");
 
 /* ===========================================================
    3. STATE
@@ -200,20 +129,7 @@ function renderAllSources() {
 }
 
 /* ===========================================================
-   6. EDUCATION PANEL
-   =========================================================== */
-function updateEduPanel() {
-  const mode = state.mode;
-  let h = `<h4>Append (${mode === "two" ? "2 tabele" : "3+ tabel"})</h4>`;
-  h += '<p><strong>Append</strong> \u0142\u0105czy tabele <strong>pionowo</strong> \u2014 dok\u0142ada wiersze z kolejnych tabel pod spodem pierwszej. To odpowiednik <code>UNION ALL</code> w SQL.</p>';
-  h += '<p>Je\u015bli tabele maj\u0105 <strong>te same kolumny</strong> \u2014 wiersze po prostu si\u0119 uk\u0142adaj\u0105 jeden pod drugim.</p>';
-  h += '<p>Je\u015bli kolumny si\u0119 <strong>r\u00f3\u017cni\u0105</strong> \u2014 Power Query tworzy sum\u0119 wszystkich kolumn. Tam, gdzie tabela nie mia\u0142a danej kolumny, wstawia <strong>null</strong>.</p>';
-  h += '<p class="warn">Uwaga: Append NIE usuwa duplikat\u00f3w \u2014 je\u015bli ten sam wiersz pojawia si\u0119 w dw\u00f3ch tabelach, w wyniku b\u0119dzie dwa razy.</p>';
-  eduPanel.innerHTML = h;
-}
-
-/* ===========================================================
-   7. ANIMATION ENGINE
+   6. ANIMATION ENGINE
    =========================================================== */
 async function runAnimation() {
   state.result = [];
@@ -221,7 +137,6 @@ async function runAnimation() {
   renderResultTable();
   cntResult.textContent = "0";
 
-  // Phase 1: Column analysis
   _log('<span class="phase">\u2550\u2550\u2550 Append \u2014 analiza kolumn \u2550\u2550\u2550</span>');
 
   const tableCols = state.tables.map((t, i) => E.getColumns(t.data));
@@ -245,7 +160,6 @@ async function runAnimation() {
   _log(`<span class="phase">Wynikowe kolumny: ${allCols.join(", ")}</span>`);
   await _delay();
 
-  // Phase 2: Copy rows table by table
   for (let ti = 0; ti < state.tables.length; ti++) {
     if (state.aborted) return;
     const tbl = state.tables[ti];
@@ -262,13 +176,11 @@ async function runAnimation() {
       const srcRow = tbl.data[ri];
       const rowId = `t${ti}_${ri}`;
 
-      // Highlight source row
       _clearActive();
       E.setRowClass(rowId, rowActiveClass(tag), APPEND_HL);
       E.scrollIntoView(rowId);
       cntRow.textContent = `${ri + 1} / ${tbl.data.length}`;
 
-      // Build result row with all columns
       const resRow = {};
       let nullCols = [];
       allCols.forEach(c => {
@@ -280,7 +192,6 @@ async function runAnimation() {
         }
       });
 
-      // Log
       const vals = tblCols.map(c => `${c}=${JSON.stringify(srcRow[c])}`).join(", ");
       let logMsg = `<span class="copy-action">  Kopiuj\u0119 ${letter}[${ri}]:</span> <span class="info">${vals}</span>`;
       if (nullCols.length) {
@@ -290,13 +201,11 @@ async function runAnimation() {
 
       await _delay();
 
-      // Add to result
       state.result.push(resRow);
       renderResultTable();
       E.highlightLastResult(state.result.length);
       cntResult.textContent = state.result.length;
 
-      // Mark source row as copied
       E.setRowClass(rowId, "copied", APPEND_HL);
       await _delay(state.speed / 3);
       E.markProcessed(rowId);
@@ -308,17 +217,17 @@ async function runAnimation() {
 }
 
 /* ===========================================================
-   8. LOAD / RESET
+   7. LOAD / RESET
    =========================================================== */
 function loadPreset() {
-  const presets = makePresets(state.mode);
-  const p = presets[dataPresetEl.value];
-  if (!p) return;
+  const d = DATASETS[dataPresetEl.value];
+  if (!d) return;
+  let tables = JSON.parse(JSON.stringify(d.append.tables));
 
-  let tables = JSON.parse(JSON.stringify(p.tables));
-
-  // For "three" mode, respect tableCount
-  if (state.mode === "three") {
+  if (state.mode === "two") {
+    tables = tables.slice(0, 2);
+  } else {
+    // "three" mode — respect tableCount
     while (tables.length < state.tableCount) {
       const idx = tables.length;
       const letter = String.fromCharCode(65 + idx);
@@ -356,12 +265,11 @@ function fullReset() {
 }
 
 /* ===========================================================
-   9. EVENTS
+   8. EVENTS
    =========================================================== */
 appendModeEl.addEventListener("change", () => {
   state.mode = appendModeEl.value;
-  tableCountSec.style.display = state.mode === "three" ? "block" : "none";
-  updateEduPanel();
+  tableCountCtrl.style.display = state.mode === "three" ? "flex" : "none";
   if (!state.running) fullReset();
 });
 
@@ -403,13 +311,12 @@ E.wirePlaybackButtons({
 });
 
 /* ===========================================================
-   10. INIT
+   9. INIT
    =========================================================== */
 state.mode = appendModeEl.value;
 state.speed = parseInt(speedSlider.value);
 state.tableCount = 3;
 loadPreset();
-updateEduPanel();
 E.updateButtons(state, btnStart, btnPause, btnStep);
 speedVal.textContent = state.speed + " ms";
 tableCountLabel.textContent = state.tableCount;

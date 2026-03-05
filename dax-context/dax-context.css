@@ -16,8 +16,8 @@
 
 .top-bar h1 em { color: var(--teal); }
 
-/* Override select focus color to teal */
-.sidebar select:focus { outline-color: var(--teal); border-color: var(--teal); }
+/* Select focus color override */
+select:focus { outline-color: var(--teal); border-color: var(--teal); }
 
 /* ---- 3-panel layout: Source | Formula | Result ---- */
 .dax-panels {
@@ -332,6 +332,43 @@
   color: var(--blue);
   font-weight: 700;
 }
+
+/* ============================================================
+   SLICER BAR
+   ============================================================ */
+.slicer-bar {
+  display: none;
+  padding: 8px 16px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.slicer-bar.visible { display: flex; }
+
+.slicer-group {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.slicer-group-label {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--gray-400); margin-right: 2px;
+}
+.slicer-chip {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 0.72rem; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--gray-200); background: var(--white);
+  color: var(--gray-700); transition: all 0.15s; user-select: none;
+}
+.slicer-chip:hover { border-color: var(--mod-allselected); color: var(--mod-allselected); }
+.slicer-chip.active {
+  background: var(--mod-allselected); border-color: var(--mod-allselected);
+  color: white; font-weight: 700;
+}
+
+/* Dimmed rows when slicer is active */
+.data-table tr.slicer-dimmed td { opacity: 0.25; }
 
 /* ---- Responsive ---- */
 @media (max-width: 1000px) {

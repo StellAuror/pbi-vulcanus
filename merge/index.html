@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Merge (Join) — Power Query Wizualizator</title>
+<title>Merge (Join) — pbi-vulcanus</title>
 <link rel="stylesheet" href="../shared/theme.css">
 <link rel="stylesheet" href="merge.css">
 </head>
@@ -11,7 +11,7 @@
 
 <div class="top-bar">
   <a href="../index.html" class="nav-back">&larr; Menu</a>
-  <h1>Power Query <em>Merge</em> — Wizualizator Joinów</h1>
+  <h1>Power Query <em>Merge</em> &mdash; pbi-vulcanus</h1>
   <div class="status-group">
     <span>Wiersz B: <span class="val" id="cntB">–</span></span>
     <span>Wiersz A: <span class="val" id="cntA">–</span></span>
@@ -21,76 +21,64 @@
 </div>
 
 <div class="app-layout">
-  <aside class="sidebar">
 
-    <div class="sidebar-section">
-      <h3>Typ operacji Merge</h3>
-      <div class="field">
-        <label for="joinType">Rodzaj joina</label>
-        <select id="joinType">
-          <option value="inner">Inner Join — tylko dopasowane</option>
-          <option value="leftOuter" selected>Left Outer — wszystko z lewej</option>
-          <option value="rightOuter">Right Outer — wszystko z prawej</option>
-          <option value="fullOuter">Full Outer — wszystko z obu</option>
-          <option value="leftAnti">Left Anti — lewa bez dopasowań</option>
-          <option value="rightAnti">Right Anti — prawa bez dopasowań</option>
-          <option value="leftSemi">Left Semi — lewa z dopasowaniem</option>
-          <option value="rightSemi">Right Semi — prawa z dopasowaniem</option>
-          <option value="fuzzy">Fuzzy — przybliżone dopasowanie</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <h3>Dane testowe</h3>
-      <div class="field">
-        <label for="dataPreset">Scenariusz</label>
+  <div class="ribbon">
+    <div class="ribbon-section">
+      <div class="ribbon-group">
         <select id="dataPreset">
-          <option value="basic">Paragony — klucze unikalne</option>
-          <option value="dupA">Paragony — duplikaty w lewej</option>
-          <option value="dupB">Paragony — duplikaty w prawej + braki</option>
+          <option value="orders">Zam&#243;wienia klient&#243;w</option>
+          <option value="products">Produkty i sprzeda&#380;</option>
+          <option value="suppliers">Dostawcy i magazyn</option>
         </select>
       </div>
-      <div class="field">
-        <label for="keyColumn">Kolumna klucza</label>
-        <select id="keyColumn">
-          <option value="Produkt">Produkt</option>
-        </select>
-      </div>
+      <div class="ribbon-section-label">Dane testowe</div>
     </div>
 
-    <div class="sidebar-section">
-      <h3>Sterowanie</h3>
-      <div class="btn-group" style="margin-bottom:12px;">
+    <div class="ribbon-divider"></div>
+
+    <div class="ribbon-section">
+      <div class="ribbon-group">
+        <select id="joinType">
+          <option value="inner">Inner Join</option>
+          <option value="leftOuter" selected>Left Outer</option>
+          <option value="rightOuter">Right Outer</option>
+          <option value="fullOuter">Full Outer</option>
+          <option value="leftAnti">Left Anti</option>
+          <option value="rightAnti">Right Anti</option>
+          <option value="leftSemi">Left Semi</option>
+          <option value="rightSemi">Right Semi</option>
+          <option value="fuzzy">Fuzzy</option>
+        </select>
+        <span class="join-desc" id="joinDesc"></span>
+        <div class="fuzzy-controls" id="fuzzyControls">
+          <label>Pr&#243;g:</label>
+          <input type="range" id="fuzzyThreshold" min="0" max="100" value="60" step="5">
+          <span class="speed-val" id="thresholdVal">0.60</span>
+        </div>
+      </div>
+      <div class="ribbon-section-label">Typ joina</div>
+    </div>
+
+    <div class="ribbon-divider"></div>
+
+    <div class="ribbon-section">
+      <div class="ribbon-group">
         <button class="btn primary" id="btnStart">&#9654; Start</button>
-        <button class="btn" id="btnPause" disabled>&#10074;&#10074; Pauza</button>
-        <button class="btn" id="btnStep" disabled>&#9654;| Krok</button>
-        <button class="btn" id="btnReset">&#8634; Reset</button>
+        <button class="btn" id="btnPause" disabled>&#10074;&#10074;</button>
+        <button class="btn" id="btnStep" disabled>&#9654;|</button>
+        <button class="btn" id="btnReset">&#8634;</button>
+        <div class="speed-control">
+          <input type="range" id="speedSlider" min="100" max="2000" value="600" step="50">
+          <span class="speed-val" id="speedVal">600 ms</span>
+        </div>
       </div>
-      <div class="field">
-        <label>Prędkość animacji</label>
-        <input type="range" id="speedSlider" min="100" max="2000" value="600" step="50">
-        <div class="range-label"><span>szybko</span><span class="val" id="speedVal">600 ms</span><span>wolno</span></div>
-      </div>
+      <div class="ribbon-section-label">Sterowanie</div>
     </div>
-
-    <div class="sidebar-section fuzzy-section" id="fuzzyControls">
-      <h3>Fuzzy — ustawienia</h3>
-      <div class="field">
-        <label>Próg podobieństwa (Levenshtein)</label>
-        <input type="range" id="fuzzyThreshold" min="0" max="100" value="60" step="5">
-        <div class="range-label"><span>luźny</span><span class="val" id="thresholdVal">0.60</span><span>ścisły</span></div>
-      </div>
-    </div>
-
-    <div class="sidebar-section" style="flex:1;">
-      <h3>Jak działa ten join?</h3>
-      <div class="edu-box" id="eduPanel"></div>
-    </div>
-  </aside>
+  </div>
 
   <div class="main-content">
     <div class="tables-area">
+      <svg id="connLines" class="conn-lines-svg"></svg>
       <div class="table-panel">
         <div class="table-panel-header tbl-a"><span class="tag">Left</span> Tabela A — Paragony</div>
         <div class="table-panel-body" id="panelA"></div>
@@ -110,6 +98,7 @@
 
 <div class="compare-bubble" id="compareBubble"></div>
 
+<script src="../shared/datasets.js"></script>
 <script src="../shared/engine.js"></script>
 <script src="merge.js"></script>
 </body>

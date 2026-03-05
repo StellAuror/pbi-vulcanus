@@ -30,7 +30,6 @@
   --orange-light: #fff3bf;
   --orange-bg: #fff9db;
 
-  --sidebar-w: 280px;
   --header-h: 52px;
 }
 
@@ -81,23 +80,109 @@ body {
 .status-badge.paused  { background: var(--orange-light); color: var(--orange); }
 .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-/* ---- LAYOUT ---- */
-.app-layout { display: flex; flex: 1; overflow: hidden; }
+/* ---- RIBBON (replaces sidebar) ---- */
+.ribbon {
+  display: flex;
+  align-items: stretch;
+  background: var(--white);
+  border-bottom: 2px solid var(--gray-200);
+  padding: 0 8px;
+  flex-shrink: 0;
+  gap: 0;
+}
+.ribbon-section {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 20px 6px;
+}
+.ribbon-section-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gray-400);
+  font-weight: 700;
+  text-align: center;
+  padding-top: 6px;
+  margin-top: 4px;
+  border-top: 1px solid var(--gray-100);
+  flex-shrink: 0;
+}
+.ribbon-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.ribbon-divider {
+  width: 1px;
+  background: var(--gray-200);
+  align-self: stretch;
+  margin: 8px 0;
+  flex-shrink: 0;
+}
 
-/* ---- SIDEBAR ---- */
-.sidebar {
-  width: var(--sidebar-w); min-width: var(--sidebar-w);
-  background: var(--white); border-right: 1px solid var(--gray-300);
-  display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+/* Ribbon controls */
+.ribbon select {
+  padding: 6px 30px 6px 10px;
+  font-size: 0.82rem;
 }
-.sidebar-section {
-  padding: 16px 18px 12px;
-  border-bottom: 1px solid var(--gray-200);
+.ribbon .btn {
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  white-space: nowrap;
 }
-.sidebar-section:last-child { border-bottom: none; }
-.sidebar-section h3 {
-  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--gray-500); margin-bottom: 10px; font-weight: 700;
+.ribbon .join-desc {
+  font-size: 0.76rem;
+  color: var(--gray-600);
+  max-width: 340px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ribbon .speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ribbon .speed-control input[type=range] {
+  width: 90px;
+  margin: 0;
+}
+.ribbon .speed-control .speed-val {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  min-width: 42px;
+  text-align: right;
+}
+.ribbon .hint {
+  font-size: 0.76rem;
+  color: var(--gray-500);
+}
+
+/* Fuzzy controls inline */
+.fuzzy-controls { display: none; align-items: center; gap: 8px; }
+.fuzzy-controls.visible { display: flex; }
+.fuzzy-controls label { font-size: 0.76rem; color: var(--gray-600); white-space: nowrap; }
+.fuzzy-controls input[type=range] { width: 80px; margin: 0; }
+.fuzzy-controls .speed-val { font-size: 0.72rem; color: var(--gray-500); min-width: 32px; }
+
+/* Table count controls inline */
+.table-count-controls {
+  display: flex; align-items: center; gap: 8px;
+}
+.table-count-controls .btn { padding: 4px 12px; font-size: 0.82rem; }
+.table-count-controls .count-label {
+  font-size: 0.88rem; font-weight: 700; min-width: 22px; text-align: center;
+}
+
+/* ---- LAYOUT ---- */
+.app-layout { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+/* ---- MAIN CONTENT ---- */
+.main-content {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0;
 }
 
 /* ---- FORM FIELDS ---- */
@@ -147,7 +232,7 @@ input[type=range]::-webkit-slider-thumb:hover { background: var(--gray-900); }
 .btn.primary { background: var(--gray-800); color: var(--white); border-color: var(--gray-800); }
 .btn.primary:hover { background: var(--gray-900); }
 
-/* ---- EDUCATION BOX ---- */
+/* ---- EDUCATION BOX (kept for possible use) ---- */
 .edu-box {
   background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px;
   padding: 12px 14px; font-size: 0.78rem; line-height: 1.55; color: var(--gray-700);
@@ -157,11 +242,6 @@ input[type=range]::-webkit-slider-thumb:hover { background: var(--gray-900); }
 .edu-box .dup-note { color: var(--gray-600); font-size: 0.75rem; }
 .edu-box .warn-note, .edu-box .warn { color: var(--orange); font-size: 0.75rem; font-weight: 600; }
 .edu-box strong { color: var(--gray-900); }
-
-/* ---- MAIN CONTENT ---- */
-.main-content {
-  flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0;
-}
 
 /* ---- DATA TABLES ---- */
 .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
@@ -206,13 +286,8 @@ input[type=range]::-webkit-slider-thumb:hover { background: var(--gray-900); }
 ::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
 
 /* ---- RESPONSIVE ---- */
-@media (max-width: 1000px) {
-  .sidebar { width: 240px; min-width: 240px; }
-}
-@media (max-width: 700px) {
-  .app-layout { flex-direction: column; }
-  .sidebar {
-    width: 100%; min-width: auto; max-height: 320px;
-    border-right: none; border-bottom: 1px solid var(--gray-300);
-  }
+@media (max-width: 900px) {
+  .ribbon { flex-wrap: wrap; }
+  .ribbon-section { padding: 6px 12px 4px; }
+  .ribbon .join-desc { display: none; }
 }

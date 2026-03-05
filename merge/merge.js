@@ -1,6 +1,6 @@
 /* ============================================================
    MERGE (JOIN) VISUALIZER — App logic
-   Depends on: PQEngine (shared/engine.js)
+   Depends on: PQEngine (shared/engine.js), DATASETS (shared/datasets.js)
    ============================================================ */
 (function () {
 "use strict";
@@ -8,85 +8,27 @@
 const E = PQEngine;
 
 /* ===========================================================
-   1. DATA PRESETS
-   =========================================================== */
-const PRESETS = {
-  basic: {
-    name: "Paragony \u2014 klucze unikalne",
-    A: [
-      { Produkt: "Chleb",  Paragon: "PAR-001", Ilo\u015b\u0107: 2 },
-      { Produkt: "Mas\u0142o",  Paragon: "PAR-001", Ilo\u015b\u0107: 1 },
-      { Produkt: "Mleko",  Paragon: "PAR-002", Ilo\u015b\u0107: 3 },
-      { Produkt: "Ser",    Paragon: "PAR-002", Ilo\u015b\u0107: 1 },
-      { Produkt: "Jab\u0142ka", Paragon: "PAR-003", Ilo\u015b\u0107: 5 },
-    ],
-    B: [
-      { Produkt: "Chleb",  Cena: 4.50, Kategoria: "Pieczywo" },
-      { Produkt: "Mas\u0142o",  Cena: 7.99, Kategoria: "Nabia\u0142" },
-      { Produkt: "Mleko",  Cena: 3.49, Kategoria: "Nabia\u0142" },
-      { Produkt: "Banany", Cena: 5.99, Kategoria: "Owoce" },
-      { Produkt: "Ry\u017c",   Cena: 6.29, Kategoria: "Sypkie" },
-    ],
-  },
-  dupA: {
-    name: "Paragony \u2014 duplikaty w lewej",
-    A: [
-      { Produkt: "Chleb",  Paragon: "PAR-001", Ilo\u015b\u0107: 2 },
-      { Produkt: "Chleb",  Paragon: "PAR-004", Ilo\u015b\u0107: 1 },
-      { Produkt: "Mas\u0142o",  Paragon: "PAR-001", Ilo\u015b\u0107: 1 },
-      { Produkt: "Mleko",  Paragon: "PAR-002", Ilo\u015b\u0107: 3 },
-      { Produkt: "Mleko",  Paragon: "PAR-003", Ilo\u015b\u0107: 2 },
-      { Produkt: "Mleko",  Paragon: "PAR-005", Ilo\u015b\u0107: 1 },
-      { Produkt: "Jab\u0142ka", Paragon: "PAR-003", Ilo\u015b\u0107: 5 },
-    ],
-    B: [
-      { Produkt: "Chleb",  Cena: 4.50, Kategoria: "Pieczywo" },
-      { Produkt: "Mas\u0142o",  Cena: 7.99, Kategoria: "Nabia\u0142" },
-      { Produkt: "Mleko",  Cena: 3.49, Kategoria: "Nabia\u0142" },
-      { Produkt: "Banany", Cena: 5.99, Kategoria: "Owoce" },
-    ],
-  },
-  dupB: {
-    name: "Paragony \u2014 duplikaty w prawej + braki",
-    A: [
-      { Produkt: "Chleb",  Paragon: "PAR-001", Ilo\u015b\u0107: 2 },
-      { Produkt: "Mas\u0142o",  Paragon: "PAR-001", Ilo\u015b\u0107: 1 },
-      { Produkt: "Ser",    Paragon: "PAR-002", Ilo\u015b\u0107: 1 },
-      { Produkt: "Jab\u0142ka", Paragon: "PAR-003", Ilo\u015b\u0107: 5 },
-    ],
-    B: [
-      { Produkt: "Chleb",  Cena: 4.50, Kategoria: "Pieczywo" },
-      { Produkt: "Chleb",  Cena: 4.99, Kategoria: "Pieczywo bio" },
-      { Produkt: "Mas\u0142o",  Cena: 7.99, Kategoria: "Nabia\u0142" },
-      { Produkt: "Mleko",  Cena: 3.49, Kategoria: "Nabia\u0142" },
-      { Produkt: "Banany", Cena: 5.99, Kategoria: "Owoce" },
-      { Produkt: "Banany", Cena: 6.49, Kategoria: "Owoce bio" },
-    ],
-  },
-};
-
-/* ===========================================================
-   2. JOIN DESCRIPTIONS
+   1. JOIN DESCRIPTIONS (one-liners for ribbon)
    =========================================================== */
 const JOIN_INFO = {
-  inner:      { title:"Inner Join",       symbol:"A \u2229 B",  desc:"Wynik zawiera <strong>tylko</strong> wiersze z dopasowaniem po obu stronach.", dup:"Duplikaty \u2192 iloczyn kartezja\u0144ski." },
-  leftOuter:  { title:"Left Outer Join",  symbol:"A \u27d5 B",  desc:"<strong>Wszystkie</strong> wiersze z lewej + dopasowania z prawej. Brak matcha \u2192 <em>null</em>.", dup:"Duplikaty w prawej mno\u017c\u0105 wiersze lewej." },
-  rightOuter: { title:"Right Outer Join", symbol:"A \u27d6 B",  desc:"<strong>Wszystkie</strong> z prawej. Brak matcha \u2192 null z lewej.", dup:"Duplikaty w lewej mno\u017c\u0105 wynik." },
-  fullOuter:  { title:"Full Outer Join",  symbol:"A \u27d7 B",  desc:"<strong>Wszystko</strong> z obu. Brak dopasowania \u2192 null.", dup:"Duplikaty \u2192 iloczyn. Wiersze bez matcha na ko\u0144cu." },
-  leftAnti:   { title:"Left Anti Join",   symbol:"A \\\\ B",    desc:"Wiersze z lewej <strong>BEZ</strong> dopasowania.", dup:"Kolumny z prawej nie s\u0105 do\u0142\u0105czane." },
-  rightAnti:  { title:"Right Anti Join",  symbol:"B \\\\ A",    desc:"Wiersze z prawej <strong>BEZ</strong> dopasowania.", dup:"Kolumny z lewej nie s\u0105 do\u0142\u0105czane." },
-  leftSemi:   { title:"Left Semi Join",   symbol:"A \u22c9 B",  desc:"Wiersze z lewej <strong>Z</strong> dopasowaniem, bez kolumn prawej. Max 1 wyst\u0105pienie.", dup:"Bez mno\u017cenia \u2014 to r\u00f3\u017cnica vs Inner Join." },
-  rightSemi:  { title:"Right Semi Join",  symbol:"A \u22ca B",  desc:"Wiersze z prawej <strong>Z</strong> dopasowaniem, bez kolumn lewej.", dup:"Analogicznie do Left Semi." },
-  fuzzy:      { title:"Fuzzy Join",       symbol:"A \u2248 B",  desc:"Left Outer z <strong>przybli\u017conym</strong> dopasowaniem (Levenshtein).", dup:"Mo\u017cliwe wielokrotne matche.", warn:"Niski pr\u00f3g = wi\u0119cej b\u0142\u0119dnych dopasowa\u0144." },
+  inner:      { title:"Inner Join",       symbol:"A \u2229 B",  desc:"Tylko wiersze z dopasowaniem po obu stronach." },
+  leftOuter:  { title:"Left Outer Join",  symbol:"A \u27d5 B",  desc:"Wszystkie z lewej + dopasowania z prawej. Brak \u2192 null." },
+  rightOuter: { title:"Right Outer Join", symbol:"A \u27d6 B",  desc:"Wszystkie z prawej + dopasowania z lewej. Brak \u2192 null." },
+  fullOuter:  { title:"Full Outer Join",  symbol:"A \u27d7 B",  desc:"Wszystko z obu stron. Brak \u2192 null." },
+  leftAnti:   { title:"Left Anti Join",   symbol:"A \\\\ B",    desc:"Wiersze z lewej BEZ dopasowania w prawej." },
+  rightAnti:  { title:"Right Anti Join",  symbol:"B \\\\ A",    desc:"Wiersze z prawej BEZ dopasowania w lewej." },
+  leftSemi:   { title:"Left Semi Join",   symbol:"A \u22c9 B",  desc:"Wiersze z lewej Z dopasowaniem, bez kolumn prawej." },
+  rightSemi:  { title:"Right Semi Join",  symbol:"A \u22ca B",  desc:"Wiersze z prawej Z dopasowaniem, bez kolumn lewej." },
+  fuzzy:      { title:"Fuzzy Join",       symbol:"A \u2248 B",  desc:"Left Outer z przybli\u017conym dopasowaniem (Levenshtein)." },
 };
 
 /* ===========================================================
-   3. DOM
+   2. DOM
    =========================================================== */
 const $ = s => document.querySelector(s);
 const joinTypeEl     = $("#joinType");
 const dataPresetEl   = $("#dataPreset");
-const keyColumnEl    = $("#keyColumn");
+const joinDescEl     = $("#joinDesc");
 const speedSlider    = $("#speedSlider");
 const speedVal       = $("#speedVal");
 const fuzzyControls  = $("#fuzzyControls");
@@ -105,11 +47,12 @@ const panelA         = $("#panelA");
 const panelB         = $("#panelB");
 const panelResult    = $("#panelResult");
 const logPanel       = $("#logPanel");
-const eduPanel       = $("#eduPanel");
 const compareBubble  = $("#compareBubble");
+const connSvg        = $("#connLines");
+const tablesArea     = $(".tables-area");
 
 /* ===========================================================
-   4. STATE
+   3. STATE
    =========================================================== */
 const MERGE_HL = ["highlight-a","highlight-b","match","nomatch","result-new"];
 
@@ -121,7 +64,7 @@ let state = E.createState({
 });
 
 /* ===========================================================
-   5. HELPERS
+   4. HELPERS
    =========================================================== */
 function _log(html) { E.log(state, logPanel, html); }
 function _delay(ms) { return E.delay(state, ms); }
@@ -141,6 +84,93 @@ function showBubble(el, text) {
 }
 function hideBubble() { compareBubble.classList.remove("visible"); }
 
+/* --- SVG ring helpers --- */
+function _svgGroup(id) {
+  let g = connSvg.querySelector("#" + id);
+  if (!g) {
+    g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("id", id);
+    connSvg.appendChild(g);
+  }
+  return g;
+}
+function clearActive() { const g = connSvg.querySelector("#svg-active"); if (g) g.innerHTML = ""; }
+function clearAnchor() { const g = connSvg.querySelector("#svg-anchor"); if (g) g.innerHTML = ""; }
+function clearLines() { clearAnchor(); clearActive(); }
+
+function _getKeyCell(rowId) {
+  const row = document.getElementById(rowId);
+  if (!row) return null;
+  const tbl = row.closest("table");
+  if (!tbl) return null;
+  const headers = Array.from(tbl.querySelectorAll("thead th"));
+  const idx = headers.findIndex(th => th.textContent.trim() === state.keyCol);
+  if (idx < 0) return null;
+  return row.querySelectorAll("td")[idx] || null;
+}
+
+const PAD = 3;
+function _rrect(g, rect, ref, color, sw, dash, fillOpacity) {
+  const x = rect.left - ref.left - PAD, y = rect.top - ref.top - PAD;
+  const w = rect.width + PAD * 2,      h = rect.height + PAD * 2;
+  const el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  el.setAttribute("x", x);  el.setAttribute("y", y);
+  el.setAttribute("width", w); el.setAttribute("height", h);
+  el.setAttribute("rx", 5);   el.setAttribute("ry", 5);
+  el.setAttribute("fill", color); el.setAttribute("fill-opacity", fillOpacity);
+  el.setAttribute("stroke", color); el.setAttribute("stroke-width", sw);
+  if (dash) el.setAttribute("stroke-dasharray", dash);
+  el.setAttribute("stroke-linejoin", "round");
+  g.appendChild(el);
+  return { x, y, w, h, cx: x + w / 2, cy: y + h / 2 };
+}
+
+function drawAnchorRing(id, color) {
+  clearAnchor();
+  const cell = _getKeyCell(id);
+  if (!cell) return;
+  const ref = tablesArea.getBoundingClientRect();
+  const g = _svgGroup("svg-anchor");
+  _rrect(g, cell.getBoundingClientRect(), ref, color, 2, "5 3", 0.07);
+}
+
+// activeId = inner-loop row (changes each step); anchorId = outer-loop row (persists)
+function drawLine(activeId, anchorId, color) {
+  clearActive();
+  const aCell = _getKeyCell(activeId);
+  const bCell = _getKeyCell(anchorId);
+  if (!aCell || !bCell) return;
+  const ref = tablesArea.getBoundingClientRect();
+  const rA = aCell.getBoundingClientRect();
+  const rB = bCell.getBoundingClientRect();
+  const g  = _svgGroup("svg-active");
+
+  // Rounded-rect outline around active key cell
+  const A = _rrect(g, rA, ref, color, 2, null, 0.1);
+
+  // Edge connector points
+  const aCx = A.cx, aCy = A.cy;
+  const bBox = { x: rB.left - ref.left - PAD, y: rB.top - ref.top - PAD,
+                 w: rB.width + PAD * 2,       h: rB.height + PAD * 2 };
+  const bCx = bBox.x + bBox.w / 2, bCy = bBox.y + bBox.h / 2;
+
+  const goRight = aCx < bCx;
+  const x1 = goRight ? A.x + A.w : A.x;
+  const x2 = goRight ? bBox.x    : bBox.x + bBox.w;
+  const span = Math.abs(x2 - x1);
+  const bend = Math.max(span * 0.45, 20);
+  const cp1x = goRight ? x1 + bend : x1 - bend;
+  const cp2x = goRight ? x2 - bend : x2 + bend;
+
+  // Smooth bezier connector
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", `M${x1},${aCy} C${cp1x},${aCy} ${cp2x},${bCy} ${x2},${bCy}`);
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", color); path.setAttribute("stroke-width", "1.75");
+  path.setAttribute("stroke-linecap", "round"); path.setAttribute("opacity", "0.8");
+  g.appendChild(path);
+}
+
 function buildResultRow(aRow, bRow, colsA, colsB) {
   const r = {};
   colsA.forEach(c => r[c] = aRow ? aRow[c] : null);
@@ -148,16 +178,14 @@ function buildResultRow(aRow, bRow, colsA, colsB) {
   return r;
 }
 
-function updateEduPanel() {
-  const info = JOIN_INFO[state.joinType]; if (!info) return;
-  let h = `<h4>${info.symbol} &nbsp;${info.title}</h4><p>${info.desc}</p>`;
-  h += `<p class="dup-note"><strong>Duplikaty:</strong> ${info.dup}</p>`;
-  if (info.warn) h += `<p class="warn-note">${info.warn}</p>`;
-  eduPanel.innerHTML = h;
+function updateJoinDesc() {
+  const info = JOIN_INFO[state.joinType];
+  if (!info) return;
+  joinDescEl.textContent = info.symbol + " \u2014 " + info.desc;
 }
 
 /* ===========================================================
-   6. ANIMATION ENGINE
+   5. ANIMATION ENGINE
    =========================================================== */
 async function runAnimation() {
   const jt = state.joinType, A = state.dataA, B = state.dataB, key = state.keyCol;
@@ -171,6 +199,7 @@ async function runAnimation() {
   else
     await animateStandard(jt, A, B, key, colsA, colsB, isFuzzy);
 
+  clearLines();
   if (!state.aborted)
     _log(`<span class="finalize">\u2550\u2550\u2550 Gotowe \u2014 wynik: ${state.result.length} wierszy \u2550\u2550\u2550</span>`);
 }
@@ -179,8 +208,9 @@ async function animateStandard(jt, A, B, key, colsA, colsB, isFuzzy) {
   for (let bi = 0; bi < B.length; bi++) {
     if (state.aborted) return;
     const bRow = B[bi], bKey = String(bRow[key] ?? "");
-    _clearActive();
+    _clearActive(); clearLines();
     _setRow(`b_${bi}`, "highlight-b"); E.scrollIntoView(`b_${bi}`);
+    drawAnchorRing(`b_${bi}`, "#7048e8");
     cntB.textContent = `${bi+1} / ${B.length}`;
     _log(`<span class="key-check">Bior\u0119 <strong>B[${bi}]</strong> \u2192 ${key} = "${bKey}"</span>`);
     await _delay();
@@ -191,6 +221,7 @@ async function animateStandard(jt, A, B, key, colsA, colsB, isFuzzy) {
       const aRow = A[ai], aKey = String(aRow[key] ?? "");
       _setRow(`a_${ai}`, "highlight-a"); E.scrollIntoView(`a_${ai}`);
       cntA.textContent = `${ai+1} / ${A.length}`;
+      drawLine(`a_${ai}`, `b_${bi}`, "#adb5bd");
 
       let isMatch = false, similarity = 0;
       if (isFuzzy) {
@@ -204,6 +235,7 @@ async function animateStandard(jt, A, B, key, colsA, colsB, isFuzzy) {
         _log(`<span class="key-check">&nbsp;&nbsp;\u2194 A[${ai}] "${aKey}"</span> \u2192 ${isMatch ? '<span class="match-yes">MATCH \u2713</span>' : '<span class="match-no">brak</span>'}`);
       }
       await _delay();
+      drawLine(`a_${ai}`, `b_${bi}`, isMatch ? "#2b8a3e" : "#c92a2a");
 
       if (isMatch) {
         anyMatch = true; state.matchedA.add(ai); state.matchedB.add(bi);
@@ -235,8 +267,9 @@ async function animateRight(jt, A, B, key, colsA, colsB) {
   for (let ai = 0; ai < A.length; ai++) {
     if (state.aborted) return;
     const aRow = A[ai], aKey = String(aRow[key] ?? "");
-    _clearActive();
+    _clearActive(); clearLines();
     _setRow(`a_${ai}`, "highlight-a"); E.scrollIntoView(`a_${ai}`);
+    drawAnchorRing(`a_${ai}`, "#1971c2");
     cntA.textContent = `${ai+1} / ${A.length}`;
     _log(`<span class="key-check">Bior\u0119 <strong>A[${ai}]</strong> \u2192 ${key} = "${aKey}"</span>`);
     await _delay();
@@ -247,10 +280,12 @@ async function animateRight(jt, A, B, key, colsA, colsB) {
       const bRow = B[bi], bKey = String(bRow[key] ?? "");
       _setRow(`b_${bi}`, "highlight-b"); E.scrollIntoView(`b_${bi}`);
       cntB.textContent = `${bi+1} / ${B.length}`;
+      drawLine(`b_${bi}`, `a_${ai}`, "#adb5bd");
       const isMatch = aKey === bKey;
       showBubble(document.getElementById(`b_${bi}`), `"${aKey}" = "${bKey}" \u2192 <span class="${isMatch?'eq':'neq'}">${isMatch?'\u2713':'\u2717'}</span>`);
       _log(`<span class="key-check">&nbsp;&nbsp;\u2194 B[${bi}] "${bKey}"</span> \u2192 ${isMatch ? '<span class="match-yes">MATCH \u2713</span>' : '<span class="match-no">brak</span>'}`);
       await _delay();
+      drawLine(`b_${bi}`, `a_${ai}`, isMatch ? "#2b8a3e" : "#c92a2a");
 
       if (isMatch) {
         anyMatch = true; state.matchedA.add(ai); state.matchedB.add(bi);
@@ -272,7 +307,7 @@ async function animateRight(jt, A, B, key, colsA, colsB) {
 }
 
 /* ===========================================================
-   7. FINALIZE
+   6. FINALIZE
    =========================================================== */
 async function finalizeStd(jt, A, B, colsA, colsB) {
   if (state.aborted) return;
@@ -365,12 +400,15 @@ async function finalizeRight(jt, A, B, colsA, colsB) {
 }
 
 /* ===========================================================
-   8. LOAD / RESET
+   7. LOAD / RESET
    =========================================================== */
 function loadPreset() {
-  const p = PRESETS[dataPresetEl.value];
-  state.dataA = JSON.parse(JSON.stringify(p.A));
-  state.dataB = JSON.parse(JSON.stringify(p.B));
+  const d = DATASETS[dataPresetEl.value];
+  if (!d) return;
+  const m = d.merge;
+  state.dataA = JSON.parse(JSON.stringify(m.A));
+  state.dataB = JSON.parse(JSON.stringify(m.B));
+  state.keyCol = m.keyCol;
   E.renderTable(panelA, state.dataA, "a");
   E.renderTable(panelB, state.dataB, "b");
   state.result = []; _renderResult();
@@ -382,19 +420,19 @@ function fullReset() {
   if (state.stepResolve) { state.stepResolve(); state.stepResolve = null; }
   setTimeout(() => {
     state.aborted = false;
-    loadPreset(); E.clearLog(state, logPanel); _clearAll(); hideBubble();
+    loadPreset(); E.clearLog(state, logPanel); _clearAll(); hideBubble(); clearLines();
     E.setStatus(statusBadge, statusText, "ready");
     E.updateButtons(state, btnStart, btnPause, btnStep);
   }, 50);
 }
 
 /* ===========================================================
-   9. EVENTS
+   8. EVENTS
    =========================================================== */
 joinTypeEl.addEventListener("change", () => {
   state.joinType = joinTypeEl.value;
   fuzzyControls.classList.toggle("visible", state.joinType === "fuzzy");
-  updateEduPanel(); if (!state.running) fullReset();
+  updateJoinDesc(); if (!state.running) fullReset();
 });
 dataPresetEl.addEventListener("change", () => { if (!state.running) fullReset(); });
 speedSlider.addEventListener("input", () => {
@@ -412,18 +450,17 @@ E.wirePlaybackButtons({
   onReset: fullReset,
   onBeforeStart() {
     state.joinType = joinTypeEl.value;
-    state.keyCol = keyColumnEl.value;
   },
   onAnimate: runAnimation,
 });
 
 /* ===========================================================
-   10. INIT
+   9. INIT
    =========================================================== */
 state.joinType = joinTypeEl.value;
 state.speed = parseInt(speedSlider.value);
 state.fuzzyThresh = parseInt(fuzzyThreshold.value) / 100;
-loadPreset(); updateEduPanel();
+loadPreset(); updateJoinDesc();
 E.updateButtons(state, btnStart, btnPause, btnStep);
 speedVal.textContent = state.speed + " ms";
 thresholdVal.textContent = state.fuzzyThresh.toFixed(2);

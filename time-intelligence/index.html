@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Intelligence — pbi-vulcanus</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<link rel="stylesheet" href="time-intelligence.css">
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="nav-back">&larr; Menu</a>
+  <h1>DAX <em>Time Intelligence</em> &mdash; pbi-vulcanus</h1>
+  <div class="status-group">
+    <span>Kontekst: <span class="val" id="ctxLabel">&ndash;</span></span>
+    <span>Wynik: <span class="val" id="tiResultLabel">&ndash;</span></span>
+  </div>
+</div>
+
+<div class="app-layout">
+
+  <div class="ribbon">
+    <div class="ribbon-section">
+      <div class="ribbon-group">
+        <select id="tiFunction">
+          <option value="DATEADD">DATEADD</option>
+          <option value="SAMEPERIODLASTYEAR">SAMEPERIODLASTYEAR</option>
+          <option value="DATESYTD">DATESYTD</option>
+          <option value="DATESQTD">DATESQTD</option>
+          <option value="PREVIOUSMONTH">PREVIOUSMONTH</option>
+          <option value="PREVIOUSQUARTER">PREVIOUSQUARTER</option>
+          <option value="PARALLELPERIOD">PARALLELPERIOD</option>
+        </select>
+      </div>
+      <div class="ribbon-section-label">Funkcja TI</div>
+    </div>
+
+    <div class="ribbon-divider"></div>
+
+    <div class="ribbon-section" id="paramSection">
+      <div class="ribbon-group">
+        <select id="paramNumber">
+          <option value="-3">-3</option>
+          <option value="-2">-2</option>
+          <option value="-1" selected>-1</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+        <select id="paramInterval">
+          <option value="MONTH">MONTH</option>
+          <option value="QUARTER">QUARTER</option>
+          <option value="YEAR" selected>YEAR</option>
+        </select>
+      </div>
+      <div class="ribbon-section-label">Parametry</div>
+    </div>
+
+    <div class="ribbon-divider"></div>
+
+    <div class="ribbon-section">
+      <div class="ribbon-group">
+        <span class="hint">Kliknij kom&oacute;rk&#281; w kalendarzu, aby ustawi&#263; kontekst daty</span>
+      </div>
+      <div class="ribbon-section-label">Instrukcja</div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="ti-panels">
+
+      <div class="ti-panel">
+        <div class="ti-panel-header ctx-source"><span class="tag">1</span> Kalendarz &mdash; kontekst</div>
+        <div class="ti-panel-body" id="panelSource"></div>
+      </div>
+
+      <div class="ti-panel ti-panel-formula">
+        <div class="ti-panel-header ctx-formula"><span class="tag">DAX</span> Formu&#322;a</div>
+        <div class="ti-panel-body ti-formula-body" id="panelFormula"></div>
+      </div>
+
+      <div class="ti-panel">
+        <div class="ti-panel-header ctx-result"><span class="tag">2</span> Daty zwr&oacute;cone przez funkcj&#281;</div>
+        <div class="ti-panel-body" id="panelResult"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="time-intelligence.js"></script>
+</body>
+</html>

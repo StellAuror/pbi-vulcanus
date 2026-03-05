@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Running Calculations — pbi-vulcanus</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<link rel="stylesheet" href="running-calc.css">
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="nav-back">&larr; Menu</a>
+  <h1>DAX <em>Running Calculations</em> &mdash; pbi-vulcanus</h1>
+  <div class="status-group">
+    <span>Kontekst: <span class="val" id="ctxLabel">&ndash;</span></span>
+    <span>Wynik: <span class="val" id="rcResultLabel">&ndash;</span></span>
+  </div>
+</div>
+
+<div class="app-layout">
+
+  <div class="ribbon">
+    <div class="ribbon-section">
+      <div class="ribbon-group">
+        <select id="rcFunction">
+          <optgroup label="Sumy narastaj&#261;ce">
+            <option value="RUNNING_TOTAL">DATESYTD &#8212; Suma YTD</option>
+            <option value="DATESQTD">DATESQTD &#8212; Suma QTD</option>
+          </optgroup>
+          <optgroup label="Okno czasowe">
+            <option value="DATESINPERIOD">DATESINPERIOD &#8212; Okno N mies.</option>
+            <option value="MOVING_AVG">AVERAGEX &#8212; &#346;rednia krocz&#261;ca</option>
+          </optgroup>
+          <optgroup label="Poprzedni okres">
+            <option value="PREVIOUSMONTH">PREVIOUSMONTH &#8212; Poprz. miesi&#261;c</option>
+            <option value="PREVIOUSQUARTER">PREVIOUSQUARTER &#8212; Poprz. kwarta&#322;</option>
+            <option value="PARALLELPERIOD">PARALLELPERIOD &#8212; Ca&#322;y poprz. rok</option>
+          </optgroup>
+          <optgroup label="Por&#243;wnania okres&#243;w">
+            <option value="MOM_PCT">DATEADD &#8212; Zmiana MoM %</option>
+            <option value="YOY_PCT">SAMEPERIODLASTYEAR &#8212; Zmiana YoY %</option>
+          </optgroup>
+          <optgroup label="Udzia&#322;">
+            <option value="PCT_OF_TOTAL">ALL &#8212; % sumy ca&#322;kowitej</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="ribbon-section-label">Wz&#243;r obliczeniowy</div>
+    </div>
+
+    <div class="ribbon-divider"></div>
+
+    <div class="ribbon-section" id="windowSection">
+      <div class="ribbon-group">
+        <label class="ribbon-label" for="windowSize">Okno:</label>
+        <select id="windowSize">
+          <option value="3" selected>3 miesi&#261;ce</option>
+          <option value="4">4 miesi&#261;ce</option>
+          <option value="6">6 miesi&#281;cy</option>
+        </select>
+      </div>
+      <div class="ribbon-section-label">Parametr</div>
+    </div>
+
+    <div class="ribbon-divider"></div>
+
+    <div class="ribbon-section">
+      <div class="ribbon-group">
+        <span class="hint">Kliknij wiersz w tabeli, aby ustawi&#263; kontekst</span>
+      </div>
+      <div class="ribbon-section-label">Instrukcja</div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="rc-panels">
+
+      <div class="rc-panel">
+        <div class="rc-panel-header ctx-source"><span class="tag">1</span> Dane &mdash; wszystkie miesi&#261;ce</div>
+        <div class="rc-panel-body" id="panelSource"></div>
+      </div>
+
+      <div class="rc-panel rc-panel-formula">
+        <div class="rc-panel-header ctx-formula"><span class="tag">DAX</span> Formu&#322;a</div>
+        <div class="rc-panel-body rc-formula-body" id="panelFormula"></div>
+      </div>
+
+      <div class="rc-panel">
+        <div class="rc-panel-header ctx-result"><span class="tag">2</span> Co widzi metryka</div>
+        <div class="rc-panel-body" id="panelResult"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="running-calc.js"></script>
+</body>
+</html>

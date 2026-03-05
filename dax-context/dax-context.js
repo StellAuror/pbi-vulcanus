@@ -1,6 +1,6 @@
 /* ============================================================
    DAX CONTEXT VISUALIZER — App logic
-   Depends on: PQEngine (shared/engine.js)
+   Depends on: PQEngine (shared/engine.js), DATASETS (shared/datasets.js)
 
    Interactive (no animation). User clicks column headers to
    select a filter modifier (REMOVEFILTERS, ALL, ALLSELECTED,
@@ -24,42 +24,7 @@ var RF_ICON_SVG = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/>' +
 var FILTER_SVG = '<svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>';
 
 /* ===========================================================
-   2. DATA PRESETS
-   =========================================================== */
-var PRESETS = {
-  basic: {
-    name: "Sprzeda\u017c wg produktu i regionu",
-    data: [
-      { Produkt: "Chleb",   Region: "P\u00f3\u0142noc",  Kwota: 1200 },
-      { Produkt: "Chleb",   Region: "Po\u0142udnie", Kwota: 800 },
-      { Produkt: "Mas\u0142o",   Region: "P\u00f3\u0142noc",  Kwota: 950 },
-      { Produkt: "Mas\u0142o",   Region: "Po\u0142udnie", Kwota: 1100 },
-      { Produkt: "Mleko",   Region: "P\u00f3\u0142noc",  Kwota: 700 },
-      { Produkt: "Mleko",   Region: "Po\u0142udnie", Kwota: 600 },
-      { Produkt: "Ser",     Region: "P\u00f3\u0142noc",  Kwota: 400 },
-      { Produkt: "Ser",     Region: "Po\u0142udnie", Kwota: 350 },
-    ],
-    measureCol: "Kwota",
-  },
-  dates: {
-    name: "Sprzeda\u017c wg daty i kategorii",
-    data: [
-      { Kategoria: "Pieczywo", Miesi\u0105c: "Stycze\u0144",  Kwota: 3200 },
-      { Kategoria: "Pieczywo", Miesi\u0105c: "Luty",     Kwota: 2800 },
-      { Kategoria: "Pieczywo", Miesi\u0105c: "Marzec",   Kwota: 3100 },
-      { Kategoria: "Nabia\u0142",   Miesi\u0105c: "Stycze\u0144",  Kwota: 4100 },
-      { Kategoria: "Nabia\u0142",   Miesi\u0105c: "Luty",     Kwota: 3900 },
-      { Kategoria: "Nabia\u0142",   Miesi\u0105c: "Marzec",   Kwota: 4300 },
-      { Kategoria: "Owoce",    Miesi\u0105c: "Stycze\u0144",  Kwota: 1500 },
-      { Kategoria: "Owoce",    Miesi\u0105c: "Luty",     Kwota: 1800 },
-      { Kategoria: "Owoce",    Miesi\u0105c: "Marzec",   Kwota: 2000 },
-    ],
-    measureCol: "Kwota",
-  },
-};
-
-/* ===========================================================
-   3. MODIFIER DEFINITIONS
+   2. MODIFIER DEFINITIONS
    =========================================================== */
 var MODIFIER_DEFS = [
   { type: "REMOVEFILTERS", label: "REMOVEFILTERS", needsValue: false, cssVar: "--mod-removefilters" },
@@ -77,7 +42,7 @@ function getModDef(type) {
 }
 
 /* ===========================================================
-   4. DOM REFERENCES
+   3. DOM REFERENCES
    =========================================================== */
 var $ = function (s) { return document.querySelector(s); };
 var dataPresetEl = $("#dataPreset");
@@ -87,19 +52,21 @@ var panelResult  = $("#panelResult");
 var cntRows      = $("#cntRows");
 var cntMods      = $("#cntMods");
 var cntSum       = $("#cntSum");
+var slicerBar    = $("#slicerBar");
 
 /* ===========================================================
-   5. STATE
+   4. STATE
    =========================================================== */
 var state = {
   data: [],
   columns: [],        // all column names except measure
   measureCol: "",
   colModifiers: {},   // { colName: { type: string, value?: string } }
+  slicerFilters: {},  // { colName: Set<string> }
 };
 
 /* ===========================================================
-   6. HELPERS
+   5. HELPERS
    =========================================================== */
 function escHtml(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -126,7 +93,7 @@ function getDistinctValues(colName) {
 }
 
 /* ===========================================================
-   7. MODIFIER MENU (floating dropdown with value picker)
+   6. MODIFIER MENU (floating dropdown with value picker)
    =========================================================== */
 var modMenu = null;
 var modMenuCol = null;
@@ -138,10 +105,8 @@ function ensureModMenu() {
   el.className = "modifier-menu";
 
   var h = '<div class="mod-menu-title">Modyfikator filtru</div>';
-  // "None" option
   h += '<div class="mod-menu-opt mod-menu-none" data-type="">' +
        '<span class="mod-menu-x">\u2715</span> Brak (usu\u0144)</div>';
-  // Modifier options
   for (var i = 0; i < MODIFIER_DEFS.length; i++) {
     var d = MODIFIER_DEFS[i];
     var arrow = d.needsValue ? ' <span class="mod-menu-arrow">\u25b8</span>' : '';
@@ -149,20 +114,17 @@ function ensureModMenu() {
          '<span class="mod-menu-dot" style="background:var(' + d.cssVar + ');"></span>' +
          d.label + arrow + '</div>';
   }
-  // Value picker (hidden, populated dynamically)
   h += '<div class="mod-menu-values" style="display:none;"></div>';
 
   el.innerHTML = h;
   document.body.appendChild(el);
   modMenu = el;
 
-  // Wire option clicks
   var opts = el.querySelectorAll(".mod-menu-opt");
   for (var oi = 0; oi < opts.length; oi++) {
     opts[oi].addEventListener("click", onModMenuOptClick);
   }
 
-  // Close on outside click
   document.addEventListener("mousedown", function (e) {
     if (modMenu && modMenu.style.display !== "none" &&
         !modMenu.contains(e.target) &&
@@ -176,7 +138,6 @@ function onModMenuOptClick() {
   var type = this.getAttribute("data-type");
   var def = getModDef(type);
 
-  // "Brak" — remove modifier
   if (type === "") {
     delete state.colModifiers[modMenuCol];
     hideModMenu();
@@ -184,11 +145,8 @@ function onModMenuOptClick() {
     return;
   }
 
-  // Needs value → show value picker
   if (def && def.needsValue) {
     showValuePicker(type);
-
-    // Highlight selected option
     var allOpts = modMenu.querySelectorAll(".mod-menu-opt");
     for (var i = 0; i < allOpts.length; i++) {
       allOpts[i].classList.toggle("selected", allOpts[i] === this);
@@ -196,7 +154,6 @@ function onModMenuOptClick() {
     return;
   }
 
-  // Apply immediately (no value needed)
   state.colModifiers[modMenuCol] = { type: type };
   hideModMenu();
   renderAll();
@@ -206,10 +163,8 @@ function showValuePicker(type) {
   var valuesDiv = modMenu.querySelector(".mod-menu-values");
   modMenu._pendingType = type;
 
-  // Get distinct values for this column
   var values = getDistinctValues(modMenuCol);
 
-  // Check if there is an existing value selected
   var existing = state.colModifiers[modMenuCol];
   var currentVal = (existing && existing.type === type && existing.value !== undefined)
     ? String(existing.value) : null;
@@ -225,7 +180,6 @@ function showValuePicker(type) {
   valuesDiv.innerHTML = h;
   valuesDiv.style.display = "block";
 
-  // Wire value clicks
   var valEls = valuesDiv.querySelectorAll(".mod-menu-value");
   for (var vi = 0; vi < valEls.length; vi++) {
     valEls[vi].addEventListener("click", onValueClick);
@@ -244,21 +198,17 @@ function showModMenu(colName, thEl) {
   ensureModMenu();
   modMenuCol = colName;
 
-  // Position below the header
   var rect = thEl.getBoundingClientRect();
   modMenu.style.top = (rect.bottom + 4) + "px";
   modMenu.style.left = Math.max(4, rect.left) + "px";
   modMenu.style.display = "block";
 
-  // Reset value picker
   modMenu.querySelector(".mod-menu-values").style.display = "none";
   modMenu._pendingType = null;
 
-  // Show "none" only when a modifier is already set
   var hasModifier = !!state.colModifiers[colName];
   modMenu.querySelector(".mod-menu-none").style.display = hasModifier ? "" : "none";
 
-  // Highlight current selection
   var currentType = hasModifier ? state.colModifiers[colName].type : null;
   var allOpts = modMenu.querySelectorAll(".mod-menu-opt");
   for (var i = 0; i < allOpts.length; i++) {
@@ -275,20 +225,11 @@ function hideModMenu() {
 }
 
 /* ===========================================================
-   8. COMPUTE — measure evaluation with modifier context
+   7. COMPUTE — measure evaluation with modifier context
    =========================================================== */
-
-/**
- * Compute SUM(measureCol) given a base filter context,
- * then applying all active modifiers on top.
- *
- * @param {Object} baseFilters  { colName: value } — the row's natural context
- * @returns {number}
- */
 function computeMeasure(baseFilters) {
   var mc = state.measureCol;
 
-  // Copy base filters
   var filters = {};
   for (var col in baseFilters) {
     if (baseFilters.hasOwnProperty(col)) {
@@ -296,41 +237,42 @@ function computeMeasure(baseFilters) {
     }
   }
 
-  // Apply modifiers
   var modCols = Object.keys(state.colModifiers);
   for (var mi = 0; mi < modCols.length; mi++) {
     var col = modCols[mi];
     var mod = state.colModifiers[col];
 
-    if (mod.type === "REMOVEFILTERS" || mod.type === "ALL" || mod.type === "ALLSELECTED") {
-      // Remove filter on this column
+    if (mod.type === "REMOVEFILTERS" || mod.type === "ALL") {
       delete filters[col];
+    } else if (mod.type === "ALLSELECTED") {
+      delete filters[col];
+      if (state.slicerFilters[col]) {
+        filters[col] = state.slicerFilters[col]; // Set
+      }
     } else if (mod.type === "equation") {
-      // Replace filter with specific value
       filters[col] = mod.value;
     } else if (mod.type === "KEEPFILTERS") {
-      // Intersect: keep only if existing value matches
       if (filters.hasOwnProperty(col)) {
         if (filters[col] !== mod.value) {
-          return 0; // empty intersection
+          return 0;
         }
-        // else existing == mod.value, keep it
       } else {
-        // No existing filter → add the filter
         filters[col] = mod.value;
       }
     }
   }
 
-  // Sum all rows matching the effective filter
   var sum = 0;
   var filterCols = Object.keys(filters);
   for (var r = 0; r < state.data.length; r++) {
     var match = true;
     for (var fi = 0; fi < filterCols.length; fi++) {
-      if (state.data[r][filterCols[fi]] !== filters[filterCols[fi]]) {
-        match = false;
-        break;
+      var f = filters[filterCols[fi]];
+      var rowVal = state.data[r][filterCols[fi]];
+      if (f instanceof Set) {
+        if (!f.has(String(rowVal))) { match = false; break; }
+      } else {
+        if (rowVal !== f) { match = false; break; }
       }
     }
     if (match) sum += (state.data[r][mc] || 0);
@@ -338,13 +280,9 @@ function computeMeasure(baseFilters) {
   return sum;
 }
 
-/**
- * Compute all per-row measures and the grand total.
- */
 function computeResult() {
   var modCount = Object.keys(state.colModifiers).length;
 
-  // Per-row measures (each row evaluated in its own filter context)
   var rowMeasures = [];
   for (var r = 0; r < state.data.length; r++) {
     var baseFilters = {};
@@ -354,7 +292,6 @@ function computeResult() {
     rowMeasures.push(computeMeasure(baseFilters));
   }
 
-  // Grand total = measure with NO base filter context
   var grandTotal = computeMeasure({});
 
   return {
@@ -367,7 +304,66 @@ function computeResult() {
 }
 
 /* ===========================================================
-   9. RENDER — Source table (clickable headers)
+   8a. SLICER BAR
+   =========================================================== */
+function hasActiveSlicer() {
+  for (var col in state.slicerFilters) {
+    if (state.slicerFilters.hasOwnProperty(col) && state.slicerFilters[col].size > 0) return true;
+  }
+  return false;
+}
+
+function rowMatchesSlicer(row) {
+  for (var col in state.slicerFilters) {
+    if (!state.slicerFilters.hasOwnProperty(col)) continue;
+    var s = state.slicerFilters[col];
+    if (s.size === 0) continue;
+    if (!s.has(String(row[col]))) return false;
+  }
+  return true;
+}
+
+function renderSlicerBar() {
+  var cols = state.columns;
+  if (!cols.length) { slicerBar.classList.remove("visible"); return; }
+  slicerBar.classList.add("visible");
+
+  var h = '<span class="slicer-group-label">Slicer</span>';
+  for (var ci = 0; ci < cols.length; ci++) {
+    var col = cols[ci];
+    var vals = getDistinctValues(col);
+    var activeSet = state.slicerFilters[col] || null;
+    h += '<div class="slicer-group">';
+    h += '<span class="slicer-group-label">' + escHtml(col) + ':</span>';
+    for (var vi = 0; vi < vals.length; vi++) {
+      var vs = String(vals[vi]);
+      var isActive = activeSet && activeSet.has(vs);
+      h += '<span class="slicer-chip' + (isActive ? ' active' : '') +
+           '" data-col="' + escAttr(col) + '" data-val="' + escAttr(vs) + '">' +
+           escHtml(vs) + '</span>';
+    }
+    h += '</div>';
+  }
+  slicerBar.innerHTML = h;
+
+  var chips = slicerBar.querySelectorAll(".slicer-chip");
+  for (var i = 0; i < chips.length; i++) {
+    chips[i].addEventListener("click", onSlicerChipClick);
+  }
+}
+
+function onSlicerChipClick() {
+  var col = this.getAttribute("data-col");
+  var val = this.getAttribute("data-val");
+  if (!state.slicerFilters[col]) state.slicerFilters[col] = new Set();
+  var s = state.slicerFilters[col];
+  if (s.has(val)) s.delete(val); else s.add(val);
+  if (s.size === 0) delete state.slicerFilters[col];
+  renderAll();
+}
+
+/* ===========================================================
+   8b. RENDER — Source table (clickable headers)
    =========================================================== */
 function renderSourceTable() {
   var data = state.data;
@@ -396,8 +392,10 @@ function renderSourceTable() {
   }
   h += '</tr></thead><tbody>';
 
+  var slicerActive = hasActiveSlicer();
   for (var i = 0; i < data.length; i++) {
-    h += '<tr><td style="color:var(--gray-400)">' + i + '</td>';
+    var dimmed = slicerActive && !rowMatchesSlicer(data[i]);
+    h += '<tr' + (dimmed ? ' class="slicer-dimmed"' : '') + '><td style="color:var(--gray-400)">' + i + '</td>';
     for (var ci2 = 0; ci2 < allCols.length; ci2++) {
       var v = data[i][allCols[ci2]];
       if (v === null || v === undefined) {
@@ -411,7 +409,6 @@ function renderSourceTable() {
   h += '</tbody></table>';
   panelSource.innerHTML = h;
 
-  // Wire click events
   var ths = panelSource.querySelectorAll("th.col-clickable");
   for (var ti = 0; ti < ths.length; ti++) {
     ths[ti].addEventListener("click", function (e) {
@@ -422,7 +419,7 @@ function renderSourceTable() {
 }
 
 /* ===========================================================
-   10. RENDER — Result table (all original rows, recalculated measures)
+   9. RENDER — Result table (all original rows, recalculated measures)
    =========================================================== */
 function renderResultTable(result) {
   var data = state.data;
@@ -449,8 +446,10 @@ function renderResultTable(result) {
   }
   h += '</tr></thead><tbody>';
 
+  var slicerActive2 = hasActiveSlicer();
   for (var i = 0; i < data.length; i++) {
-    h += '<tr><td style="color:var(--gray-400)">' + i + '</td>';
+    var dimmed2 = slicerActive2 && !rowMatchesSlicer(data[i]);
+    h += '<tr' + (dimmed2 ? ' class="slicer-dimmed"' : '') + '><td style="color:var(--gray-400)">' + i + '</td>';
     for (var ci2 = 0; ci2 < allCols.length; ci2++) {
       var c2 = allCols[ci2];
       var isMeasure2 = (c2 === state.measureCol);
@@ -458,7 +457,6 @@ function renderResultTable(result) {
       var v = data[i][c2];
 
       if (isMeasure2) {
-        // Show the recalculated measure for this row
         var mVal = result.rowMeasures[i];
         var changed = (mVal !== v);
         h += '<td class="col-measure' + (changed ? ' col-measure-changed' : '') + '">' +
@@ -487,7 +485,7 @@ function renderResultTable(result) {
 }
 
 /* ===========================================================
-   11. RENDER — Formula panel
+   10. RENDER — Formula panel
    =========================================================== */
 function renderFormula(result) {
   var mc = state.measureCol;
@@ -501,14 +499,13 @@ function renderFormula(result) {
   h += '<div class="formula-block' + (hasAny ? ' has-rf' : '') + '">';
 
   if (!hasAny) {
-    h += 'Wynik =<br>';
+    h += mc + ' =<br>';
     h += '<span class="fn">SUM</span> ( <span class="col">Tabela[' + mc + ']</span> )';
   } else {
-    h += 'Wynik =<br>';
+    h += mc + ' =<br>';
     h += '<span class="kw">CALCULATE</span> (<br>';
     h += '&nbsp;&nbsp;<span class="fn">SUM</span> ( <span class="col">Tabela[' + mc + ']</span> ),<br>';
 
-    // Check if all columns have the same non-value type → collapse to table ref
     var allSame = true;
     var firstType = state.colModifiers[modCols[0]].type;
     var firstDef = getModDef(firstType);
@@ -544,13 +541,11 @@ function renderFormula(result) {
 
   h += '</div>';
 
-  // Metric result value
   h += '<div class="metric-result changed" id="metricBox">';
-  h += '<div class="metric-label">SUM( ' + mc + ' )</div>';
+  h += '<div class="metric-label">' + mc + '</div>';
   h += '<div class="metric-value">' + formatNumber(result.total) + '</div>';
   h += '</div>';
 
-  // Summary
   if (hasAny) {
     h += '<div style="font-size:0.75rem;color:var(--gray-600);margin-top:4px;line-height:1.5;">';
     h += '<strong style="color:var(--orange);">Aktywne modyfikatory:</strong><br>';
@@ -577,10 +572,11 @@ function renderFormula(result) {
 }
 
 /* ===========================================================
-   12. RENDER ALL
+   11. RENDER ALL
    =========================================================== */
 function renderAll() {
   var result = computeResult();
+  renderSlicerBar();
   renderSourceTable();
   renderResultTable(result);
   renderFormula(result);
@@ -590,15 +586,17 @@ function renderAll() {
 }
 
 /* ===========================================================
-   13. LOAD PRESET
+   12. LOAD PRESET
    =========================================================== */
 function loadPreset() {
-  var p = PRESETS[dataPresetEl.value];
-  if (!p) return;
+  var d = DATASETS[dataPresetEl.value];
+  if (!d) return;
+  var p = d.dax;
 
   state.data = JSON.parse(JSON.stringify(p.data));
   state.measureCol = p.measureCol;
   state.colModifiers = {};
+  state.slicerFilters = {};
 
   var allCols = Object.keys(p.data[0]);
   state.columns = [];
@@ -612,7 +610,7 @@ function loadPreset() {
 }
 
 /* ===========================================================
-   14. EVENTS & INIT
+   13. EVENTS & INIT
    =========================================================== */
 dataPresetEl.addEventListener("change", function () {
   loadPreset();

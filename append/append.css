@@ -3,20 +3,10 @@
    ============================================================ */
 .top-bar h1 em { color: var(--purple); }
 
-/* Override select focus color to purple for append */
-.sidebar select:focus { outline-color: var(--purple); border-color: var(--purple); }
-
 /* Override status badge running color to purple */
 .status-badge.running { background: var(--purple-light); color: var(--purple); }
 
-/* ---- Table count controls ---- */
-.table-count-controls {
-  display: flex; gap: 6px; align-items: center; margin-bottom: 10px;
-}
-.table-count-controls .btn { padding: 4px 10px; font-size: 0.75rem; }
-.table-count-controls .count-label {
-  font-size: 0.82rem; font-weight: 700; color: var(--gray-800); min-width: 16px; text-align: center;
-}
+/* table-count-controls are now in shared theme.css */
 
 /* ---- Source tables area (horizontal scroll) ---- */
 .sources-area {
@@ -82,9 +72,9 @@
 
 /* ---- Log colors ---- */
 .log-line .copy-action   { color: var(--green); font-weight: 600; }
-.log-line .header-action { color: var(--purple); font-weight: 600; }
-.log-line .null-action   { color: var(--orange); font-weight: 600; }
-.log-line .phase         { color: var(--gray-800); font-weight: 700; }
+.log-line .header-action { color: var(--gray-600); font-weight: 600; }
+.log-line .null-action   { color: var(--red); font-weight: 600; }
+.log-line .phase         { color: var(--gray-600); font-weight: 700; }
 .log-line .info          { color: var(--gray-600); }
 
 /* ---- Responsive ---- */

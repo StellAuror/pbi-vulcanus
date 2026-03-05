@@ -1,0 +1,266 @@
+/* ============================================================
+   TIME INTELLIGENCE — SPECIFIC STYLES
+   ============================================================ */
+:root {
+  --ti: #5c7cfa;
+  --ti-light: #dbe4ff;
+  --ti-bg: #edf2ff;
+  --ti-context: #495057;
+  --ti-context-bg: #f1f3f5;
+}
+
+.top-bar h1 em { color: #495057; font-weight: 800; }
+
+select:focus { outline-color: var(--ti); border-color: var(--ti); }
+
+/* ---- 3-panel layout: Source | Formula | Result ---- */
+.ti-panels {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.ti-panel {
+  display: flex; flex-direction: column;
+  overflow: hidden; border-right: 1px solid var(--gray-200);
+}
+.ti-panel:last-child { border-right: none; }
+
+.ti-panel-header {
+  padding: 10px 16px; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.3px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 2px solid var(--gray-200); background: var(--white);
+}
+.ti-panel-header .tag {
+  font-size: 0.65rem; padding: 2px 7px; border-radius: 4px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.ti-panel-header.ctx-source .tag { background: var(--gray-100); color: var(--gray-600); }
+.ti-panel-header.ctx-formula .tag { background: var(--gray-100); color: var(--gray-600); }
+.ti-panel-header.ctx-result .tag { background: var(--ti-bg); color: var(--ti); }
+
+/* ---- Formula center panel ---- */
+.ti-panel-formula { min-width: 300px; max-width: 380px; }
+
+.ti-formula-body {
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+  overflow-y: auto;
+}
+.ti-panel-body { flex: 1; overflow-y: auto; background: var(--white); }
+
+/* ---- Formula block ---- */
+.formula-block {
+  background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px;
+  padding: 14px 16px; font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.78rem; line-height: 1.7; color: var(--gray-800);
+}
+.formula-block .kw { color: var(--gray-600); font-weight: 700; }
+.formula-block .fn { color: var(--ti); font-weight: 700; }
+.formula-block .col { color: var(--gray-700); }
+.formula-block .tbl { color: var(--gray-600); }
+.formula-block .param { color: var(--ti); font-weight: 600; }
+
+.formula-label {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--gray-500); margin-bottom: 4px;
+}
+
+/* ---- Metric comparison ---- */
+.metric-compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.metric-box {
+  border-radius: 8px; padding: 12px 14px; text-align: center;
+  border: 1px solid var(--gray-200);
+}
+.metric-box.ctx {
+  background: var(--gray-50); border-color: var(--gray-200);
+}
+.metric-box.res {
+  background: var(--ti-bg); border-color: var(--ti-light);
+}
+.metric-box .metric-label {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--gray-500); margin-bottom: 4px;
+}
+.metric-box.ctx .metric-value {
+  font-size: 1.3rem; font-weight: 800; color: var(--gray-800);
+  font-variant-numeric: tabular-nums;
+}
+.metric-box.res .metric-value {
+  font-size: 1.3rem; font-weight: 800; color: var(--ti);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Delta badge */
+.delta-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 12px;
+  font-size: 0.72rem; font-weight: 700;
+  margin-top: 6px;
+}
+.delta-badge.positive { background: var(--gray-50); color: var(--gray-700); }
+.delta-badge.negative { background: var(--gray-50); color: var(--gray-700); }
+.delta-badge.neutral  { background: var(--gray-50); color: var(--gray-500); }
+
+/* Full-width result metric */
+.metric-full {
+  background: var(--green-bg); border: 1px solid var(--green-light); border-radius: 8px;
+  padding: 12px 16px; text-align: center;
+}
+.metric-full .metric-label {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--gray-500); margin-bottom: 4px;
+}
+.metric-full .metric-value {
+  font-size: 1.5rem; font-weight: 800; color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Description block ---- */
+.ti-desc {
+  font-size: 0.75rem; color: var(--gray-600); line-height: 1.55;
+  padding: 10px 14px; background: var(--gray-50); border-radius: 8px;
+  border: 1px solid var(--gray-200);
+}
+.ti-desc strong { color: var(--gray-800); }
+.ti-desc .ti-highlight { color: var(--gray-800); font-weight: 700; }
+.ti-desc code {
+  background: var(--gray-100); padding: 1px 5px; border-radius: 3px;
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.72rem;
+}
+
+/* ---- Calendar grid (vertical: 12 months × N years) ---- */
+.cal-grid-wrap { padding: 16px; }
+
+.cal-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.cal-grid th {
+  position: sticky; top: 0; background: var(--gray-50);
+  padding: 8px 10px; text-align: right; font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500);
+  border-bottom: 2px solid var(--gray-200); z-index: 2;
+}
+.cal-grid th:first-child { text-align: left; }
+
+.cal-grid td {
+  padding: 9px 10px; border-bottom: 1px solid var(--gray-100);
+  text-align: right; font-variant-numeric: tabular-nums;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  position: relative;
+}
+.cal-grid td:first-child {
+  text-align: left; font-weight: 600; color: var(--gray-600);
+  font-size: 0.76rem;
+}
+.cal-grid td.clickable {
+  cursor: pointer;
+}
+.cal-grid td.clickable:hover {
+  background: var(--gray-50);
+}
+
+/* Quarter separator rows */
+.cal-grid tr.q-sep td { border-bottom: 2px solid var(--gray-200); }
+
+/* ---- Context highlight (source panel) ---- */
+.cal-grid td.ctx-active {
+  background: var(--gray-100) !important;
+  color: var(--gray-900) !important;
+  font-weight: 800;
+  box-shadow: inset 0 -2px 0 var(--gray-800);
+}
+
+/* ---- TI result highlight (result panel) ---- */
+.cal-grid td.ti-included {
+  background: var(--ti-bg) !important;
+  color: var(--ti) !important;
+  font-weight: 700;
+}
+
+/* Context ghost in result panel — very subtle dotted underline */
+.cal-grid td.ctx-ghost {
+  box-shadow: inset 0 -2px 0 var(--gray-300);
+  font-weight: 600;
+}
+
+/* Month label in first column */
+.cal-grid .month-label {
+  display: flex; align-items: center; gap: 6px;
+}
+.cal-grid .q-badge {
+  font-size: 0.55rem; padding: 1px 5px; border-radius: 3px;
+  background: var(--gray-100); color: var(--gray-500);
+  font-weight: 700; letter-spacing: 0.3px; flex-shrink: 0;
+}
+
+/* ---- No-data indicator ---- */
+.cal-grid td.no-data {
+  color: var(--gray-300) !important;
+  font-style: italic;
+  font-size: 0.72rem;
+}
+
+/* ---- Summary bar below calendar ---- */
+.cal-summary {
+  margin: 12px 16px 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  display: flex; align-items: center; gap: 12px;
+}
+.cal-summary.source {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-800);
+}
+.cal-summary.result {
+  background: var(--ti-bg);
+  border: 1px solid var(--ti-light);
+  color: var(--ti);
+}
+.cal-summary .sum-label {
+  font-weight: 700; font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.cal-summary .sum-value {
+  font-weight: 800; font-size: 1.1rem; margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.cal-summary .sum-months {
+  font-size: 0.7rem; opacity: 0.8;
+}
+
+/* ---- Arrow animation for shift ---- */
+.shift-arrow {
+  display: inline-flex; align-items: center; gap: 4px;
+  color: var(--gray-700); font-weight: 700; font-size: 0.82rem;
+  padding: 8px 0;
+}
+.shift-arrow svg {
+  width: 18px; height: 18px; fill: none; stroke: currentColor;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ---- Param section visibility ---- */
+#paramSection.hidden { display: none; }
+
+/* ---- Responsive ---- */
+@media (max-width: 1100px) {
+  .ti-panels { grid-template-columns: 1fr; }
+  .ti-panel-formula { max-width: none; min-width: auto; }
+  .ti-panel { max-height: 350px; }
+}
+@media (max-width: 700px) {
+  .ti-panel { max-height: 280px; }
+  .metric-compare { grid-template-columns: 1fr; }
+}

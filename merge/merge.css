@@ -3,8 +3,7 @@
    ============================================================ */
 .top-bar h1 em { color: var(--blue); }
 
-.fuzzy-section { display: none; }
-.fuzzy-section.visible { display: block; }
+/* fuzzy controls are now inline in the ribbon — handled by shared theme.css */
 
 /* ---- 3-panel grid ---- */
 .tables-area {
@@ -14,6 +13,32 @@
   gap: 0;
   overflow: hidden;
   min-height: 0;
+  position: relative;
+}
+
+/* ---- Connection lines SVG overlay ---- */
+.conn-lines-svg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 5;
+}
+.conn-lines-svg line {
+  stroke-width: 2; stroke-linecap: round;
+}
+
+/* Anchor frame (outer-loop row) — dashed, very subtle fill */
+#svg-anchor rect {
+  filter: drop-shadow(0 0 3px rgba(80, 40, 220, 0.25));
+}
+/* Active frame + connector (inner-loop row) — fade-in */
+#svg-active rect,
+#svg-active path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ring-pop 0.15s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+@keyframes ring-pop {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .table-panel {
@@ -45,12 +70,12 @@
 .data-table tr.nomatch { background: var(--red-light) !important; }
 
 /* ---- Log colors ---- */
-.log-line .key-check { color: var(--gray-700); }
+.log-line .key-check { color: var(--gray-600); }
 .log-line .match-yes { color: var(--green); font-weight: 700; }
 .log-line .match-no  { color: var(--red); }
-.log-line .action    { color: var(--blue); font-weight: 600; }
-.log-line .finalize  { color: var(--orange); font-weight: 700; }
-.log-line .fuzzy-score { color: var(--orange); font-weight: 600; }
+.log-line .action    { color: var(--green); font-weight: 600; }
+.log-line .finalize  { color: var(--gray-600); font-weight: 700; }
+.log-line .fuzzy-score { color: var(--gray-600); font-weight: 600; }
 
 /* ---- Compare bubble ---- */
 .compare-bubble {
