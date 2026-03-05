@@ -11,7 +11,7 @@
 
 <div class="top-bar">
   <a href="../index.html" class="nav-back">&larr; Menu</a>
-  <h1>DAX <em>Running Calculations</em> &mdash; pbi-vulcanus</h1>
+  <h1>DAX <em>Time Intelligence</em> &mdash; pbi-vulcanus</h1>
   <div class="status-group">
     <span>Kontekst: <span class="val" id="ctxLabel">&ndash;</span></span>
     <span>Wynik: <span class="val" id="rcResultLabel">&ndash;</span></span>
@@ -24,6 +24,13 @@
     <div class="ribbon-section">
       <div class="ribbon-group">
         <select id="rcFunction">
+          <optgroup label="Przesuni&#281;cie czasowe">
+            <option value="DATEADD_SHIFT">DATEADD &#8212; Przesuni&#281;ty okres</option>
+            <option value="SPLY_VAL">SAMEPERIODLASTYEAR &#8212; Warto&#347;&#263; rok temu</option>
+            <option value="PREVIOUSMONTH">PREVIOUSMONTH &#8212; Poprz. miesi&#261;c</option>
+            <option value="PREVIOUSQUARTER">PREVIOUSQUARTER &#8212; Poprz. kwarta&#322;</option>
+            <option value="PARALLELPERIOD">PARALLELPERIOD &#8212; Ca&#322;y poprz. rok</option>
+          </optgroup>
           <optgroup label="Sumy narastaj&#261;ce">
             <option value="RUNNING_TOTAL">DATESYTD &#8212; Suma YTD</option>
             <option value="DATESQTD">DATESQTD &#8212; Suma QTD</option>
@@ -31,11 +38,6 @@
           <optgroup label="Okno czasowe">
             <option value="DATESINPERIOD">DATESINPERIOD &#8212; Okno N mies.</option>
             <option value="MOVING_AVG">AVERAGEX &#8212; &#346;rednia krocz&#261;ca</option>
-          </optgroup>
-          <optgroup label="Poprzedni okres">
-            <option value="PREVIOUSMONTH">PREVIOUSMONTH &#8212; Poprz. miesi&#261;c</option>
-            <option value="PREVIOUSQUARTER">PREVIOUSQUARTER &#8212; Poprz. kwarta&#322;</option>
-            <option value="PARALLELPERIOD">PARALLELPERIOD &#8212; Ca&#322;y poprz. rok</option>
           </optgroup>
           <optgroup label="Por&#243;wnania okres&#243;w">
             <option value="MOM_PCT">DATEADD &#8212; Zmiana MoM %</option>

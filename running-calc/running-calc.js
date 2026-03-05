@@ -360,6 +360,54 @@ var RC_FUNCTIONS = {
              ')';
     },
   },
+
+  DATEADD_SHIFT: {
+    name: "DATEADD \u2014 Przesuni\u0119ty okres",
+    measureName: "Sprzeda\u017c Shifted",
+    desc: "<strong>DATEADD</strong> przesuwa daty w kontek\u015bcie o podan\u0105 liczb\u0119 " +
+          "miesi\u0119cy. Zwraca warto\u015b\u0107 sprzeda\u017cy z przesuni\u0119tego okresu.",
+    hasWindow: true,
+    compute: function (idx, windowSize) {
+      var shifted = idx - windowSize;
+      if (shifted < 0 || shifted >= SALES.length) return { value: null, inputs: [], op: "SUM", isPercent: false };
+      return { value: SALES[shifted].val, inputs: [shifted], op: "SUM", isPercent: false };
+    },
+    formula: function (win) {
+      return '<span class="fn">CALCULATE</span> (<br>' +
+             '&nbsp;&nbsp;<span class="fn">SUM</span> ( <span class="col">Dane[Sprzeda\u017c]</span> ),<br>' +
+             '&nbsp;&nbsp;<span class="fn">DATEADD</span> (<br>' +
+             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="col">Kalendarz[Data]</span>,<br>' +
+             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">-' + win + '</span>,<br>' +
+             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="param">MONTH</span><br>' +
+             '&nbsp;&nbsp;)<br>' +
+             ')';
+    },
+  },
+
+  SPLY_VAL: {
+    name: "SAMEPERIODLASTYEAR \u2014 Warto\u015b\u0107 rok temu",
+    measureName: "Sprzeda\u017c LY",
+    desc: "<strong>SAMEPERIODLASTYEAR</strong> zwraca ten sam miesi\u0105c w poprzednim " +
+          "roku. Pokazuje warto\u015b\u0107 sprzeda\u017cy sprzed roku \u2014 bez por\u00f3wnania procentowego.",
+    hasWindow: false,
+    compute: function (idx) {
+      var row = SALES[idx];
+      var lyIdx = -1;
+      for (var i = 0; i < SALES.length; i++) {
+        if (SALES[i].rok === row.rok - 1 && SALES[i].m === row.m) { lyIdx = i; break; }
+      }
+      if (lyIdx < 0) return { value: null, inputs: [], op: "SUM", isPercent: false };
+      return { value: SALES[lyIdx].val, inputs: [lyIdx], op: "SUM", isPercent: false };
+    },
+    formula: function () {
+      return '<span class="fn">CALCULATE</span> (<br>' +
+             '&nbsp;&nbsp;<span class="fn">SUM</span> ( <span class="col">Dane[Sprzeda\u017c]</span> ),<br>' +
+             '&nbsp;&nbsp;<span class="fn">SAMEPERIODLASTYEAR</span> (<br>' +
+             '&nbsp;&nbsp;&nbsp;&nbsp;<span class="col">Kalendarz[Data]</span><br>' +
+             '&nbsp;&nbsp;)<br>' +
+             ')';
+    },
+  },
 };
 
 /* ===========================================================
@@ -380,7 +428,7 @@ var rcResultEl    = $("#rcResultLabel");
    =========================================================== */
 var state = {
   selectedRow: 14,       // Mar 2024
-  funcName: "RUNNING_TOTAL",
+  funcName: "DATEADD_SHIFT",
   windowSize: 3,
 };
 
